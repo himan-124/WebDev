@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flying Balloons</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: skyblue;
+            height: 100vh;
+        }
+
+        .balloon {
+            width: 50px;
+            height: 65px;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -100px;
+            animation: fly 8s linear infinite;
+        }
+
+        .balloon::after {
+            content: "";
+            width: 2px;
+            height: 40px;
+            background: #555;
+            position: absolute;
+            top: 65px;
+            left: 50%;
+        }
+
+        @keyframes fly {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-120vh);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1> WELCOME TO BALLON FESTIVAL</h1>
+
+    <div class="balloon" style="left:10%; background:red; animation-delay:0s;"></div>
+    <div class="balloon" style="left:25%; background:yellow; animation-delay:2s;"></div>
+    <div class="balloon" style="left:40%; background:green; animation-delay:4s;"></div>
+    <div class="balloon" style="left:55%; background:orange; animation-delay:1s;"></div>
+    <div class="balloon" style="left:70%; background:purple; animation-delay:3s;"></div>
+    <div class="balloon" style="left:85%; background:pink; animation-delay:5s;"></div>
+
+</body>
+</html>

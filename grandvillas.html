@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Grand Villas | Room Booking</title>
+</head>
+
+<body>
+
+<center>
+    <h1>THE GRAND VILLAS</h1>
+    <h3>Room on Rent Booking Form</h3>
+</center>
+
+<form>
+
+<fieldset>
+    <legend>Personal Details</legend>
+
+    Full Name:<br>
+    <input type="text" required><br><br>
+
+    Mobile Number:<br>
+    <input type="tel" required><br><br>
+
+    Email Address:<br>
+    <input type="email" required><br><br>
+
+    Permanent Address:<br>
+    <textarea rows="4" cols="40" required></textarea><br><br>
+
+    Gender:<br>
+    <input type="radio" name="gender" required> Male
+    <input type="radio" name="gender"> Female
+    <input type="radio" name="gender"> Other
+</fieldset>
+
+<br>
+
+<fieldset>
+    <legend>Booking Details</legend>
+
+    ID Proof:<br>
+    <select required>
+        <option value="">Select</option>
+        <option>Aadhar Card</option>
+        <option>Passport</option>
+        <option>Driving License</option>
+        <option>Voter ID</option>
+    </select><br><br>
+
+    ID Number:<br>
+    <input type="text" required><br><br>
+
+    Preferred City:<br>
+    <select required>
+        <option value="">Select City</option>
+        <option>Jabalpur</option>
+        <option>Bhopal</option>
+        <option>Indore</option>
+        <option>Delhi</option>
+        <option>Noida</option>
+        <option>Goa</option>
+    </select><br><br>
+
+    Room Type:<br>
+    <input type="radio" name="room" required> Single
+    <input type="radio" name="room"> Double<br><br>
+
+    Your Budget (₹):<br>
+    <input type="number" required><br><br>
+
+    Check-in Date:<br>
+    <input type="date" required><br><br>
+
+    Check-out Date:<br>
+    <input type="date" required><br><br>
+
+    Additional Requirements:<br>
+    <textarea rows="3" cols="40"></textarea>
+</fieldset>
+
+<br>
+
+<fieldset>
+    <legend>Terms & Conditions</legend>
+
+    <ul>
+        <li>Rent must be paid at time of check-in.</li>
+        <li>Valid government ID is required.</li>
+        <li>Booking amount is non-refundable.</li>
+        <li>No loud noise or disturbance.</li>
+        <li>Property damage will be charged.</li>
+        <li>Room is for residential use only.</li>
+        <li>Management can cancel booking if rules are violated.</li>
+    </ul>
+
+    <input type="checkbox" required> I agree to the Terms & Conditions
+</fieldset>
+
+<br>
+
+<center>
+    <input type="submit" value="Book Room">
+    <input type="reset" value="Reset">
+</center>
+
+</form>
+
+</body>
+</html>

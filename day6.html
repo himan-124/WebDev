@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bouncing Cursor Ball</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #c57e7e;
+            overflow: hidden;
+            cursor: none;
+            
+        }
+
+        #mover {
+            position: absolute;
+            top: 60%;
+            left: 60%;
+            pointer-events: none;
+            transform: translate(-60%, -60%);
+            
+        }
+        #ball:hover{
+     
+        }
+
+        .ball {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(to bottom, #ff3333, #0000ff);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            animation: bounce 0.8s infinite alternate ease-in-out;
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: translateY(-60px);
+            }
+            100% {
+                transform: translateY(60px)  rotate(360deg); 
+                     
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 >
+ 
+ MOVE THE CURSOR : GAME</h1>
+    <div id="mover">
+        <div class="ball"></div>
+    </div>
+
+    <script>
+        const mover = document.getElementById('mover');
+
+        document.addEventListener('mousemove', function(e) {
+            mover.style.left = e.clientX + 'px';
+            mover.style.top = e.clientY + 'px';
+        });
+    </script>
+
+</body>
+</html>
