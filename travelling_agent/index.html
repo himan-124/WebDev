@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Incredible India — Travel Budget Maker (Aesthetic Pro)</title>
+
+  <style>
+    /* =========================
+       THEME VARIABLES
+       ========================= */
+    :root {
+      --bg-1: #071426;
+      --bg-2: #0b3a5a;
+      --glass: rgba(255, 255, 255, 0.06);
+      --muted: rgba(255, 255, 255, 0.65);
+      --text-main: #f8fafc;
+      --accent: #ff6f3c;
+      --accent-2: #ffd166;
+      --success: #2ecc71;
+      --danger: #ff4d4f;
+      --card-radius: 16px;
+      --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.5);
+      --shadow-hover: 0 20px 40px -5px rgba(0,0,0,0.7);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --max-width: 1200px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --glass-blur: 16px;
+      --transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Light Theme Overrides */
+    .light-theme {
+      --bg-1: #f1f5f9;
+      --bg-2: #e2e8f0;
+      --text-main: #0f172a;
+      --muted: #475569;
+      --glass: rgba(255, 255, 255, 0.6);
+      --glass-border: rgba(0, 0, 0, 0.05);
+      --shadow-soft: 0 10px 30px -10px rgba(0,0,0,0.1);
+      --shadow-hover: 0 20px 40px -5px rgba(0,0,0,0.15);
+    }
+
+    /* =========================
+       RESET & BASE
+       ========================= */
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: var(--font-sans);
+      color: var(--text-main);
+      background: radial-gradient(800px 400px at 10% 10%, rgba(255, 111, 60, 0.1), transparent 8%),
+                  linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    /* =========================
+       INTRO VFX
+       ========================= */
+    .intro-overlay {
+      position: fixed; inset: 0;
+      background: radial-gradient(circle, var(--bg-2), var(--bg-1));
+      z-index: 999999;
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeOutIntro 0.5s ease-in-out 4.5s forwards;
+    }
+    .intro-text {
+      font-size: clamp(2.5rem, 6vw, 6rem); font-weight: 900; text-align: center;
+      background: linear-gradient(135deg, #ff9933, #ffffff, #138808);
+      background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-transform: uppercase; letter-spacing: 4px; line-height: 1.2;
+      filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6));
+      animation: zoomOutVFX 4.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes zoomOutVFX {
+      0% { transform: scale(3.5); opacity: 0; filter: blur(25px) drop-shadow(0 0 0 rgba(0,0,0,0)); }
+      15% { opacity: 1; filter: blur(0px) drop-shadow(0 15px 30px rgba(0,0,0,0.6)); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes fadeOutIntro { to { opacity: 0; visibility: hidden; } }
+
+    /* =========================
+       LOGIN SCREEN
+       ========================= */
+    .login-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .login-box { width: 100%; max-width: 420px; text-align: center; padding: 40px; }
+    .login-logo {
+      width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, #ff9933, #138808);
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 32px; color: #fff;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4); margin: 0 auto 24px;
+    }
+
+    /* =========================
+       LAYOUT & COMPONENTS
+       ========================= */
+    .wrap { max-width: var(--max-width); margin: 32px auto; padding: 0 20px; display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
+    @media (max-width: 980px) { .wrap { grid-template-columns: 1fr; } }
+
+    header.appbar {
+      max-width: var(--max-width); margin: 20px auto 0; padding: 16px 24px; border-radius: 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      background: var(--glass); border: 1px solid var(--glass-border);
+      backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur));
+      box-shadow: var(--shadow-soft); position: sticky; top: 20px; z-index: 100; transition: var(--transition);
+    }
+    .brand { display: flex; gap: 16px; align-items: center; }
+    .logo {
+      width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg, #ff9933, #138808);
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; color: #fff;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3); transition: transform var(--transition);
+    }
+    .logo:hover { transform: rotate(-5deg) scale(1.05); }
+    .brand h1 { margin: 0; font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; }
+    .brand p { margin: 0; font-size: 0.8rem; color: var(--muted); }
+
+    .top-actions { display: flex; gap: 12px; align-items: center; }
+    button { font-family: inherit; }
+    .icon-btn {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 10px; border-radius: 12px; 
+      color: var(--text-main); cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-3px); }
+    .icon-btn:active { transform: translateY(0); }
+    
+    .primary-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; padding: 12px 24px; 
+      border-radius: 12px; color: #000; font-weight: 700; cursor: pointer; box-shadow: 0 8px 20px rgba(255, 111, 60, 0.3);
+      transition: var(--transition); font-size: 1rem;
+    }
+    .primary-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(255, 111, 60, 0.4); }
+    .primary-btn:active { transform: translateY(0); }
+
+    .sidebar { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 110px; height: fit-content;}
+    .card {
+      background: var(--glass); border-radius: var(--card-radius); padding: 24px;
+      border: 1px solid var(--glass-border); backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur)); box-shadow: var(--shadow-soft); transition: var(--transition);
+    }
+    .card h3 { margin: 0 0 12px 0; font-size: 1.2rem; font-weight: 600; }
+    .muted { color: var(--muted); font-size: 0.85rem; }
+
+    .field { display: flex; flex-direction: column; margin-top: 16px; gap: 6px; text-align: left; }
+    .field label { font-size: 0.85rem; font-weight: 500; color: var(--muted); }
+    .field input, .field select {
+      padding: 12px 16px; border-radius: 12px; border: 1px solid var(--glass-border);
+      background: rgba(0,0,0,0.1); color: inherit; outline: none; font-size: 0.95rem;
+      transition: var(--transition); width: 100%;
+    }
+    .light-theme .field input { background: rgba(255,255,255,0.5); }
+    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255, 111, 60, 0.15); transform: translateY(-2px); }
+
+    .history-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+    .history-item { 
+      display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; 
+      border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); 
+      font-size: 0.85rem; transition: var(--transition);
+    }
+    .history-item:hover { background: rgba(255,255,255,0.08); transform: translateX(5px); }
+
+    .main { display: flex; flex-direction: column; gap: 24px; }
+    .hero { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 24px; flex-wrap: wrap; }
+    .summary { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .pill { background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; color: var(--text-main); border: 1px solid var(--glass-border); }
+    .pill strong { color: var(--accent-2); font-weight: 600; }
+    
+    .filters { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .range-wrap { display: flex; gap: 12px; align-items: center; background: rgba(255,255,255,0.03); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--glass-border); }
+    input[type=range] { accent-color: var(--accent); cursor: pointer; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+
+    /* ====================================================
+       PROFILE LIGHT & SMART GLOW CARDS
+       ==================================================== */
+    .package {
+      position: relative; overflow: hidden; border-radius: var(--card-radius);
+      background: var(--glass); border: 1px solid var(--glass-border);
+      transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+      box-shadow: var(--shadow-soft);
+      display: flex; flex-direction: column; min-height: 360px;
+      opacity: 0; transform: translateY(30px);
+      animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      /* CSS Variables for Mouse Tracking */
+      --mouse-x: 50%;
+      --mouse-y: 50%;
+    }
+
+    /* Inner Spotlight */
+    .package::before {
+      content: "";
+      position: absolute; inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: radial-gradient(
+        600px circle at var(--mouse-x) var(--mouse-y), 
+        rgba(255, 111, 60, 0.15), 
+        transparent 40%
+      );
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Outer Profile Light Border & Shadow on Hover */
+    .package:hover { 
+      transform: translateY(-8px) scale(1.01); 
+      border-color: rgba(255, 111, 60, 0.6);
+      box-shadow: 
+        0 0 20px rgba(255, 111, 60, 0.4), 
+        0 0 40px rgba(255, 111, 60, 0.1), 
+        var(--shadow-hover);
+    }
+
+    .package:hover::before {
+      opacity: 1;
+    }
+
+    @keyframes fadeSlideUp { to { opacity: 1; transform: translateY(0); } }
+    .package .media { height: 180px; background-size: cover; background-position: center; transition: transform 0.6s ease; z-index: 2; position: relative;}
+    .package:hover .media { transform: scale(1.05); }
+    
+    .package .meta { padding: 20px; display: flex; flex-direction: column; gap: 12px; flex: 1; position: relative; z-index: 2; background: inherit; }
+    .package h4 { margin: 0; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.3px; }
+    .package p { margin: 0; color: var(--muted); font-size: 0.85rem; line-height: 1.4; }
+    .price { display: inline-block; padding: 6px 12px; border-radius: 8px; background: rgba(255, 111, 60, 0.1); color: var(--accent); font-weight: 700; font-size: 0.95rem; width: fit-content; border: 1px solid rgba(255, 111, 60, 0.2); }
+    
+    .actions { display: flex; gap: 12px; margin-top: auto; padding-top: 10px; }
+    .action-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; transition: var(--transition); font-size: 0.9rem; }
+    .action-btn.primary { background: var(--text-main); color: var(--bg-1); }
+    .action-btn.primary:hover { background: var(--accent); color: #000; transform: translateY(-2px); }
+    .action-btn.ghost { background: transparent; border: 1px solid var(--glass-border); color: var(--text-main); }
+    .action-btn.ghost:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+    
+    .favorite { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); color: #fff; z-index: 10; }
+    .favorite:hover { transform: scale(1.15); background: rgba(0,0,0,0.6); }
+
+    /* Modal & Chat */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal { width: min(900px, 92%); max-height: 85vh; overflow-y: auto; border-radius: 24px; padding: 32px; background: var(--bg-1); border: 1px solid var(--glass-border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .modal-overlay.open .modal { transform: scale(1) translateY(0); opacity: 1; }
+    .modal img { width: 100%; border-radius: 16px; display: block; margin-bottom: 20px; max-height: 300px; object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+    .chat-panel { display: flex; gap: 16px; align-items: flex-end; padding: 20px; }
+    .chat-window { flex: 1; max-height: 300px; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+    .chat-input { width: 350px; display: flex; flex-direction: column; gap: 12px; }
+    @media (max-width: 980px) { .chat-panel { flex-direction: column; align-items: stretch; } .chat-input { width: 100%; } }
+
+    .msg { max-width: 80%; padding: 12px 16px; border-radius: 16px; font-size: 0.95rem; line-height: 1.5; animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    @keyframes popIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .msg.bot { align-self: flex-start; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-bottom-left-radius: 4px; }
+    .msg.user { align-self: flex-end; background: linear-gradient(135deg, var(--accent), #ff4d4f); color: #fff; border-bottom-right-radius: 4px; }
+    .typing { display: inline-flex; gap: 4px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 16px; border-bottom-left-radius: 4px; width: fit-content; border: 1px solid var(--glass-border); }
+    .typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-main); opacity: 0.3; animation: typingBounce 1.4s infinite ease-in-out both; }
+    .typing span:nth-child(1) { animation-delay: -0.32s; }
+    .typing span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typingBounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); opacity: 1; } }
+
+    footer { max-width: var(--max-width); margin: 40px auto; text-align: center; color: var(--muted); font-size: 0.85rem; padding-bottom: 40px; }
+    .muted-2 { color: var(--muted); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+  <!-- INTRO VFX OVERLAY -->
+  <div class="intro-overlay" id="introOverlay">
+    <div class="intro-text">INCREDIBLE INDIA<br/>BUDGET TOUR & TRIP MAKER</div>
+  </div>
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="login-wrapper" style="display: none;">
+    <div class="card login-box">
+      <div class="login-logo">IN</div>
+      <h2>Welcome Explorer!</h2>
+      <p class="muted" style="margin-bottom: 24px;">Please login to start planning your trip.</p>
+      
+      <div class="field">
+        <label for="userNameInput">Your Name</label>
+        <input id="userNameInput" type="text" placeholder="e.g. Kavya" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="userPassInput">Password</label>
+        <input id="userPassInput" type="password" placeholder="Pass: 12345">
+      </div>
+
+      <button class="primary-btn" id="doLoginBtn" style="width:100%; margin-top:28px;">Start Exploring</button>
+      
+      <div style="margin-top: 20px; font-size: 0.8rem; color: var(--muted);">
+        Don't have an account? Just use password <strong>12345</strong> for demo.
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP SCREEN -->
+  <div id="appScreen" style="display: none;">
+    
+    <header class="appbar" role="banner">
+      <div class="brand">
+        <div class="logo">IN</div>
+        <div>
+          <h1>Incredible India Budget Tour & Trip Maker</h1>
+          <p class="muted">Aesthetic Pro • India Packages</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <span id="headerUserName" style="font-weight: 600; margin-right: 12px; color: var(--accent-2);"></span>
+        <button class="icon-btn" id="tourBtn" title="Quick Tour">🎯</button>
+        <button class="icon-btn" id="themeBtn" title="Toggle theme">🌙</button>
+        <button class="icon-btn" id="logoutBtn" title="Logout" style="color: var(--danger);">🚪</button>
+      </div>
+    </header>
+
+    <div class="wrap" role="main">
+
+      <aside class="sidebar">
+        <div class="card" id="searchCard">
+          <h3>Plan a Trip</h3>
+          <div class="field">
+            <label for="dest">Destination / Vibe</label>
+            <input id="dest" type="text" list="destList" placeholder="e.g., Goa, Snow, Beach">
+            <datalist id="destList"></datalist>
+          </div>
+          <div class="field">
+            <label for="budget">Max Budget (₹)</label>
+            <input id="budget" type="number" placeholder="e.g., 20000">
+          </div>
+          <div class="field">
+            <label for="days">Travel Days</label>
+            <input id="days" type="number" placeholder="e.g., 4">
+          </div>
+          <div style="margin-top: 20px; display:flex; gap:12px">
+            <button class="primary-btn" id="exploreBtn" style="flex:1">Explore</button>
+            <button class="icon-btn" id="guidedBtn" title="AI Guided Search">✨</button>
+          </div>
+          <div style="margin-top: 24px;">
+            <div class="muted" style="font-weight: 600; margin-bottom: 8px;">Recent searches</div>
+            <div class="history-list" id="historyList"></div>
+          </div>
+        </div>
+
+        <div class="card" id="favCard">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="margin: 0;">Favorites</h3>
+            <button class="icon-btn" id="clearBtn" title="Clear All Data" style="padding: 6px; font-size: 0.8rem;">🗑️</button>
+          </div>
+          <div id="favList" class="history-list"></div>
+        </div>
+      </aside>
+
+      <section class="main">
+        <div class="hero card">
+          <div class="summary">
+            <div class="pill" id="summaryDest">Destination: <strong>—</strong></div>
+            <div class="pill" id="summaryBudget">Budget: <strong>—</strong></div>
+            <div class="pill" id="summaryDays">Days: <strong>—</strong></div>
+          </div>
+
+          <div class="filters">
+            <div class="range-wrap">
+              <label class="muted-2" style="margin-right:8px; font-weight:500;">Max/Day</label>
+              <input id="priceRange" type="range" min="1500" max="8000" step="100" value="8000" style="width:140px">
+              <div style="font-weight: 600; color: var(--accent); min-width: 50px;" id="priceLabel">₹8000</div>
+            </div>
+            <!-- Dynamic Reset Button to load all packages again -->
+            <button class="icon-btn" id="resetFiltersBtn" title="Reset All Filters" style="gap: 6px; font-weight: 600; padding: 8px 14px; border-radius: 20px; background: rgba(255,255,255,0.05);">🔄 Reset</button>
+          </div>
+        </div>
+
+        <div id="packagesGrid" class="grid"></div>
+
+        <div class="chat-panel card">
+          <div class="chat-window" id="chatWindow"></div>
+          
+          <div class="chat-input">
+            <input id="chatInput" class="field" style="padding:14px 16px; border-radius:12px; border:1px solid var(--glass-border); background:rgba(0,0,0,0.1); color:inherit; outline:none;" type="text" placeholder="Try: 'show all packages' or 'reset filters'"/>
+            <div style="display:flex; gap:12px">
+              <button class="primary-btn" id="chatSendBtn" style="flex:1">Send Message</button>
+              <button class="icon-btn" id="demoBtn">Demo</button>
+            </div>
+            <div class="muted-2" style="font-size: 0.75rem;">Tip: Press <kbd style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">/</kbd> to focus chat.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      • Incredible India Travel Planner • Mega Database Version • Created by Himanshu • &copy; 2026 •
+    </footer>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    const $ = id => document.getElementById(id);
+    const formatRupee = n => '₹' + Number(n).toLocaleString('en-IN');
+
+    const imgBeach = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=60";
+    const imgMountain = "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?auto=format&fit=crop&w=600&q=60";
+    const imgHeritage = "https://tse2.mm.bing.net/th/id/OIP.lkOGS5wQkhPJzvFPdZ3ArgHaE8?rs=1&pid=ImgDetMain&o=7&rm=3";
+    const imgNature = "https://images.unsplash.com/photo-1518182170546-0766de6b6aca?auto=format&fit=crop&w=600&q=60";
+    const imgSpiritual = "https://cdn.britannica.com/00/189800-050-FCC9D047/Ghats-Varanasi-Ganges-River-India-Uttar-Pradesh.jpg";
+    const imgCity = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=600&q=60";
+
+    // MEGA DATABASE (100+ Destinations)
+    const DESTINATIONS = [
+      { place:"Goa", state:"Goa", pricePerDay:2500, bestSeason:"Nov - Feb", tags:["beach","party","sunset"], img:"https://togethertounknown.com/wp-content/uploads/2023/01/DJI_0207-min.jpg" },
+      { place:"Jaipur", state:"Rajasthan", pricePerDay:3000, bestSeason:"Oct - Mar", tags:["palace","heritage"], img:imgHeritage },
+      { place:"Kerala", state:"Kerala", pricePerDay:3500, bestSeason:"Sep - Mar", tags:["backwaters","houseboat", "nature"], img:"https://wallpapercave.com/wp/wp2783293.jpg" },
+      { place:"Ladakh", state:"Ladakh", pricePerDay:4200, bestSeason:"May - Sep", tags:["mountain","adventure", "snow"], img:imgMountain },
+      { place:"Varanasi", state:"Uttar Pradesh", pricePerDay:2000, bestSeason:"Oct - Mar", tags:["spiritual","ghats", "peace"], img:imgSpiritual },
+      { place:"Shimla", state:"Himachal Pradesh", pricePerDay:2800, bestSeason:"Mar - Jun", tags:["hillstation","snow", "mountain"], img:"https://png.pngtree.com/background/20230310/original/pngtree-shimla-aerial-view-india-himachal-vector-picture-image_2117039.jpg" },
+      { place:"Mumbai", state:"Maharashtra", pricePerDay:3200, bestSeason:"Nov - Feb", tags:["city","coast", "party"], img:"https://www.tripsavvy.com/thmb/yUM8q2-VUym6o52vUX8DkKlq4vk=/4241x2442/filters:fill(auto,1)/GettyImages-1008831236-5c65d6bf4cedfd00014aa310.jpg" },
+      { place:"Delhi", state:"Delhi", pricePerDay:3100, bestSeason:"Oct - Mar", tags:["heritage","city", "history"], img:"https://deih43ym53wif.cloudfront.net/Rajpath-delhi-shutterstock_1195751923.jpg_7647e1aad2.jpg" },
+      { place:"Agra", state:"Uttar Pradesh", pricePerDay:2900, bestSeason:"Oct - Mar", tags:["tajmahal","heritage", "history"], img:"https://th.bing.com/th/id/OIP.-DaoxBPzcPFTL1R7M6oSxQHaE5?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Rishikesh", state:"Uttarakhand", pricePerDay:2200, bestSeason:"Sep - Nov", tags:["adventure","yoga", "spiritual", "mountain"], img:"https://tse2.mm.bing.net/th/id/OIP.SVQ1pa6-xtoyxLcbEIEtfgHaFj?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Manali", state:"Himachal Pradesh", pricePerDay:3000, bestSeason:"Oct - Feb", tags:["snow","mountain", "adventure"], img:"https://www.holidify.com/images/cmsuploads/compressed/1200px-Mountains2C_Manali2C_Himachal_Pradesh_20200107183405.jpg" },
+      { place:"Ooty", state:"Tamil Nadu", pricePerDay:2600, bestSeason:"Oct - Mar", tags:["tea","hills", "nature"], img:"https://tse2.mm.bing.net/th/id/OIP.r-rg2BdMKQHX0xgm8zeDdgHaEd?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Udaipur", state:"Rajasthan", pricePerDay:3600, bestSeason:"Oct - Mar", tags:["palace","lake", "heritage"], img:"https://wallpapers.com/images/hd/lake-pichola-palace-rajputana-hd-dspdgwndxa2ug3qu.jpg" },
+      { place:"Hampi", state:"Karnataka", pricePerDay:2300, bestSeason:"Oct - Feb", tags:["ruins","heritage", "history"], img:"https://thumbs.dreamstime.com/b/view-sunrise-pushkarni-sri-krishna-tank-ruins-south-side-pool-shrine-boulders-mountain-horizon-hampi-225143978.jpg" },
+      { place:"Darjeeling", state:"West Bengal", pricePerDay:3000, bestSeason:"Mar - Jun", tags:["tea","mountain", "nature"], img:"https://tse4.mm.bing.net/th/id/OIP.gGSYdeFWBe7T-F1ml-TiEwHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Andaman", state:"Andaman & Nicobar", pricePerDay:4500, bestSeason:"Oct - May", tags:["island","beach", "water"], img:"https://2.hlimg.com/images/things2do/738X538/_7066646_orig_1507188464t.jpeg" },
+      { place:"Kochi", state:"Kerala", pricePerDay:3000, bestSeason:"Sep - Mar", tags:["heritage","backwaters"], img:"https://s3.india.com/wp-content/uploads/2024/06/Top-Historical-Places-To-Visit-In-Kochi.jpg##image/jpg" },
+      { place:"Gokarna", state:"Karnataka", pricePerDay:2000, bestSeason:"Oct - Mar", tags:["beach","offbeat", "peace"], img:"https://holidays.tripfactory.com/blogs/wp-content/uploads/sites/6/2024/09/Gokarna-Karnataka.webp" },
+      { place:"Rann of Kutch", state:"Gujarat", pricePerDay:2600, bestSeason:"Nov - Feb", tags:["desert","festival"], img:"https://tse1.mm.bing.net/th/id/OIP.KNpIF13_e4dfAikKDUBpUAHaDR?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Pondicherry", state:"Puducherry", pricePerDay:2400, bestSeason:"Oct - Mar", tags:["beach","french", "peace"], img:"https://www.transindiatravels.com/wp-content/uploads/immaculate-conception-cathedral-2.jpg" },
+      { place:"Srinagar", state:"Jammu & Kashmir", pricePerDay:3500, bestSeason:"Apr - Oct", tags:["lake","mountain","nature"], img:"https://www.tusktravel.com/blog/wp-content/uploads/2021/02/Dal-Lake-Srinagar-Kashmir-1.jpg" },
+      { place:"Gulmarg", state:"Jammu & Kashmir", pricePerDay:4500, bestSeason:"Dec - Mar", tags:["snow","skiing","mountain"], img:"https://magikindia.com/wp-content/uploads/2015/12/Gulmarg-ski-1.jpg" },
+      { place:"Pahalgam", state:"Jammu & Kashmir", pricePerDay:3200, bestSeason:"Mar - Nov", tags:["nature","valley","peace"], img:"https://tripxl.com/blog/wp-content/uploads/2024/07/Best-trekking-trails-and-paths-in-Pahalgam-OG-Photo.jpg" },
+      { place:"Nubra Valley", state:"Ladakh", pricePerDay:4000, bestSeason:"Jun - Sep", tags:["desert","mountain","offbeat"], img:"https://i.pinimg.com/originals/f9/c9/82/f9c9820324a35ffa3be45b1ed5e0d043.jpg" },
+      { place:"Spiti Valley", state:"Himachal Pradesh", pricePerDay:3500, bestSeason:"May - Oct", tags:["mountain","adventure","offbeat"], img:"https://media1.thrillophilia.com/filestore/zgu7fgfjy5e275mfrwhw21sujkmz_shutterstock_2361426719.jpg" },
+      { place:"Kasol", state:"Himachal Pradesh", pricePerDay:1800, bestSeason:"Mar - Jun", tags:["mountain","trekking","party"], img:"https://i0.wp.com/www.tusktravel.com/blog/wp-content/uploads/2021/12/Kasol-Himachal-Pradesh2.jpg?w=1200&ssl=1" },
+      { place:"Dharamshala", state:"Himachal Pradesh", pricePerDay:2200, bestSeason:"Feb - Jun", tags:["spiritual","mountain","peace"], img:"https://www.postoast.com/wp-content/uploads/2018/11/Monasteries-In-Dharamshala-Gyuto-Monastery.jpg" },
+      { place:"Dalhousie", state:"Himachal Pradesh", pricePerDay:2600, bestSeason:"Mar - Jun", tags:["hillstation","nature","peace"], img:"https://tse3.mm.bing.net/th/id/OIP.7S9WjqnyruqSaV9hnFxfJQHaFG?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Amritsar", state:"Punjab", pricePerDay:2000, bestSeason:"Oct - Mar", tags:["spiritual","heritage","food"], img:"https://static.wixstatic.com/media/3417b6_9d136d18669d49d6ae8315c01402a94d~mv2.jpg/v1/fit/w_1000%2Ch_1000%2Cal_c%2Cq_80/file.jpg" },
+      { place:"Chandigarh", state:"Punjab", pricePerDay:2800, bestSeason:"Aug - Nov", tags:["city","architecture"], img:"https://tse2.mm.bing.net/th/id/OIP.LjWTHz5Ss54PnyAxmgwOYAHaFg?rs=1&pid=ImgDetMain&o=7&rm=3"},
+      { place:"Mussoorie", state:"Uttarakhand", pricePerDay:3000, bestSeason:"Apr - Jun", tags:["hillstation","nature"], img:"https://tse1.mm.bing.net/th/id/OIP.tlGXtIQTvaXND730NYz-KQHaDm?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Nainital", state:"Uttarakhand", pricePerDay:2800, bestSeason:"Mar - Jun", tags:["lake","hillstation","nature"], img:"https://s3.india.com/wp-content/uploads/2024/06/10-Fascinating-Facts-About-Nainital.jpg##image/jpg" },
+      { place:"Auli", state:"Uttarakhand", pricePerDay:4000, bestSeason:"Dec - Feb", tags:["snow","skiing","mountain"], img:"https://www.bontravelindia.com/wp-content/uploads/2022/10/Auli-in-Winters.jpg" },
+      { place:"Jim Corbett", state:"Uttarakhand", pricePerDay:3500, bestSeason:"Nov - Feb", tags:["wildlife","nature","adventure"], img:"https://www.atlasandboots.com/wp-content/uploads/2024/01/Tips-for-visiting-Jim-Corbett-tiger-summer.jpg" },
+      { place:"Kedarnath", state:"Uttarakhand", pricePerDay:2500, bestSeason:"May - Oct", tags:["spiritual","mountain","trekking"], img:"https://tse4.mm.bing.net/th/id/OIP.JFqOXf8-Waw9gDdkJJMD2QHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Badrinath", state:"Uttarakhand", pricePerDay:2500, bestSeason:"May - Oct", tags:["spiritual","mountain"], img:"https://enthutraveller.com/wp-content/uploads/2024/07/Badrinath_Temple__Uttarakhand.jpg" },
+      { place:"Bhopal", state:"Madhya Pradesh", pricePerDay:2000, bestSeason:"Oct - Mar", tags:["lake","city","heritage"], img:"https://tse1.mm.bing.net/th/id/OIP.2dF3DHJTHJD1Jcyqy6v51AHaEK?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Indore", state:"Madhya Pradesh", pricePerDay:2200, bestSeason:"Oct - Mar", tags:["food","city"], img:"https://www.savaari.com/blog/wp-content/uploads/2022/11/Indore_Rajwada01_11zon-1-edited.jpg" },
+      { place:"Ujjain", state:"Madhya Pradesh", pricePerDay:1800, bestSeason:"Oct - Mar", tags:["spiritual","temple"], img:"https://www.pilgrimagetour.in/blog/wp-content/uploads/2023/09/Mahakaleshwar-Temple-History.jpg" },
+      { place:"Khajuraho", state:"Madhya Pradesh", pricePerDay:2500, bestSeason:"Oct - Mar", tags:["heritage","temple","history"], img:"https://tse2.mm.bing.net/th/id/OIP.T4kM9iR2AtOZRveBxBDyNwHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Pachmarhi", state:"Madhya Pradesh", pricePerDay:2400, bestSeason:"Oct - Jun", tags:["hillstation","nature","waterfall"], img:"https://tse3.mm.bing.net/th/id/OIP.G7AOfBm1VeNaIS7gv8YLTwHaE8?pid=ImgDet&w=474&h=316&rs=1&o=7&rm=3" },
+      { place:"Bhedaghat", state:"Madhya Pradesh", pricePerDay:1800, bestSeason:"Nov - May", tags:["nature","waterfall","offbeat"], img:"https://i.pinimg.com/originals/d8/55/0b/d8550b33e9e693a73a40ef181b734b64.jpg" },
+      { place:"Jabalpur", state:"Madhya Pradesh", pricePerDay:1900, bestSeason:"Sep - Mar", tags:["nature","city","heritage"], img:"https://tse4.mm.bing.net/th/id/OIP.tyP8YLsxoJrDv8OvkvK4OAHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Kanha", state:"Madhya Pradesh", pricePerDay:3500, bestSeason:"Oct - Jun", tags:["wildlife","nature"], img:"https://www.mptourism.com/images/point-of-interest/kanha-poi3.webp" },
+      { place:"Bandhavgarh", state:"Madhya Pradesh", pricePerDay:3800, bestSeason:"Oct - Jun", tags:["wildlife","nature"], img:"https://tse3.mm.bing.net/th/id/OIP.KB3z4I4f1vSGZZq6GMst3QHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Gwalior", state:"Madhya Pradesh", pricePerDay:2200, bestSeason:"Oct - Mar", tags:["fort","heritage"], img:"https://www.fabhotels.com/blog/wp-content/uploads/2019/03/Gwalior-Fort.jpg" },
+      { place:"Orchha", state:"Madhya Pradesh", pricePerDay:1800, bestSeason:"Oct - Mar", tags:["heritage","peace","offbeat"], img:"https://tse2.mm.bing.net/th/id/OIP.B4YgsGaP5x0_ZNyoyWShHwHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Jodhpur", state:"Rajasthan", pricePerDay:2800, bestSeason:"Oct - Mar", tags:["fort","heritage","city"], img:"https://th.bing.com/th/id/R.b9ddf0164c9244f723ecc212f2c09ed6?rik=PS%2bw9s8wDrZAAA&riu=http%3a%2f%2fsun-surfer.com%2fphotos%2f2015%2f02%2fMehrangarh-Fort-Jodhpur-India.jpg&ehk=uCB1rOqhgdgEUVWAdAZSLjNBSZ2DXJSuzbfApoLOcU8%3d&risl=&pid=ImgRaw&r=0" },
+      { place:"Jaisalmer", state:"Rajasthan", pricePerDay:3200, bestSeason:"Nov - Mar", tags:["desert","fort","adventure"], img:"https://tse1.mm.bing.net/th/id/OIP.7w01yztL3TQntG2Sski8ewHaEK?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Pushkar", state:"Rajasthan", pricePerDay:1800, bestSeason:"Oct - Mar", tags:["spiritual","lake","offbeat"], img:"https://tse2.mm.bing.net/th/id/OIP.TXZ2NaANhanG5EONAleVAQHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Mount Abu", state:"Rajasthan", pricePerDay:2500, bestSeason:"Nov - Jun", tags:["hillstation","nature"], img:"https://img.peapix.com/5f9b3bb015d94a308c4d5538bc40f7e9_480.jpg" },
+      { place:"Bikaner", state:"Rajasthan", pricePerDay:2200, bestSeason:"Oct - Mar", tags:["heritage","desert"], img:"https://tse4.mm.bing.net/th/id/OIP.xOy9kez0CLtmDiVJgdV5MQHaEK?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Ahmedabad", state:"Gujarat", pricePerDay:2500, bestSeason:"Nov - Feb", tags:["city","heritage","food"], img:"https://tse4.mm.bing.net/th/id/OIP.V5hjHBNgF6BRNU7OfoAxXAHaEK?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Gir", state:"Gujarat", pricePerDay:3500, bestSeason:"Dec - Mar", tags:["wildlife","nature"], img:"https://tripmusing.com/wp-content/uploads/2025/03/Gir-National-Park-and-Santuary.webp" },
+      { place:"Dwarka", state:"Gujarat", pricePerDay:1800, bestSeason:"Oct - Mar", tags:["spiritual","temple","beach"], img:"https://www.savaari.com/blog/wp-content/uploads/2024/12/Dwarakadhish-Temple-1.webp" },
+      { place:"Somnath", state:"Gujarat", pricePerDay:1800, bestSeason:"Oct - Mar", tags:["spiritual","temple","beach"], img:"https://tse3.mm.bing.net/th/id/OIP.GWPzlIT_BtKjC8rEh6SLYwAAAA?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Pune", state:"Maharashtra", pricePerDay:2800, bestSeason:"Jul - Feb", tags:["city","history","food"], img:"https://www.ynorme.com/blog/wp-content/uploads/2021/02/5c6a5fb858f94-Shaniwar_Wada_Attractions-1800x1013.jpg" },
+      { place:"Lonavala", state:"Maharashtra", pricePerDay:3000, bestSeason:"Jun - Sep", tags:["hillstation","nature","waterfall"], img:"https://travelophia.com/wp-content/uploads/2023/06/Kune-Waterfalls-Lonavala-4-1536x864.png" },
+      { place:"Mahabaleshwar", state:"Maharashtra", pricePerDay:3200, bestSeason:"Dec - Jun", tags:["hillstation","nature"], img:"https://hblimg.mmtcdn.com/content/hubble/img/Mahabaleshwar/mmt/activities/m_activities_arthurs_seat_5_l_360_640.jpg" },
+      { place:"Alibaug", state:"Maharashtra", pricePerDay:2800, bestSeason:"Nov - May", tags:["beach","weekend"], img:"https://www.holidify.com/images/cmsuploads/compressed/8524317915_9ee324f8d4_o_20190209013416.jpg" },
+      { place:"Daman", state:"Daman & Diu", pricePerDay:2000, bestSeason:"Oct - May", tags:["beach","offbeat","peace"], img:"https://static-blog.treebo.com/blog/wp-content/uploads/2018/02/Ghoghla-Beach.jpg" },
+      { place:"Diu", state:"Daman & Diu", pricePerDay:2200, bestSeason:"Oct - May", tags:["beach","fort","offbeat"], img:"https://www.holidify.com/images/compressed/1024.jpg?v=1.1" },
+      { place:"Hyderabad", state:"Telangana", pricePerDay:2800, bestSeason:"Oct - Mar", tags:["city","heritage","food"], img:"https://wallpapercave.com/wp/wp10257499.jpg" },
+      { place:"Bangalore", state:"Karnataka", pricePerDay:3000, bestSeason:"Sep - Feb", tags:["city","party","nature"], img:"https://tse4.mm.bing.net/th/id/OIP.0ot5Lc9hjXNvmoXa79ZcWwHaEK?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Mysore", state:"Karnataka", pricePerDay:2400, bestSeason:"Oct - Feb", tags:["heritage","palace"], img:"https://tse4.mm.bing.net/th/id/OIP.zQ9FegS-Rxn9WeYfZNIKjwHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Coorg", state:"Karnataka", pricePerDay:3200, bestSeason:"Sep - Mar", tags:["hillstation","nature","coffee"], img:"https://www.tripsavvy.com/thmb/jxYAarhPWwX9c5mlJ7lfF6rL4TY=/3008x2000/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-158810538-59edc6d0c4124400113bc0da.jpg" },
+      { place:"Chikmagalur", state:"Karnataka", pricePerDay:2800, bestSeason:"Sep - Mar", tags:["hillstation","nature","coffee"], img:"https://tse2.mm.bing.net/th/id/OIP.eVwusVrzS7-k0kTPOhr3iwHaEL?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Mangalore", state:"Karnataka", pricePerDay:2500, bestSeason:"Sep - Apr", tags:["beach","food","city"], img:"https://tse2.mm.bing.net/th/id/OIP.TXd0a-mfX988vyajDZBizAHaEK?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Udupi", state:"Karnataka", pricePerDay:2000, bestSeason:"Oct - Mar", tags:["beach","temple","food"], img:"https://karnatakatourism.org/wp-content/uploads/2020/06/St-Marys_4.jpg" },
+      { place:"Chennai", state:"Tamil Nadu", pricePerDay:2600, bestSeason:"Nov - Feb", tags:["city","beach","temple"], img:"https://tse1.mm.bing.net/th/id/OIP.sW_V079JZUob4URteqeq_wHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Mahabalipuram", state:"Tamil Nadu", pricePerDay:2200, bestSeason:"Nov - Feb", tags:["heritage","beach","temple"], img:"https://tse4.mm.bing.net/th/id/OIP.-hF-jzV853ky73ydHQ0UmgHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Kodaikanal", state:"Tamil Nadu", pricePerDay:2800, bestSeason:"Sep - May", tags:["hillstation","lake","nature"], img:"https://tse2.mm.bing.net/th/id/OIP.TFctS9H8VcnHxjyW5nkK0QHaFj?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Munnar", state:"Kerala", pricePerDay:3000, bestSeason:"Sep - Mar", tags:["hillstation","nature","tea"], img:"https://wallpapercave.com/wp/wp3555744.jpg" },
+      { place:"Alleppey", state:"Kerala", pricePerDay:3200, bestSeason:"Sep - Mar", tags:["backwaters","houseboat","nature"], img:"https://tse4.mm.bing.net/th/id/OIP.s2-nR6jNqgqR964_aLPnXwHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Wayanad", state:"Kerala", pricePerDay:2800, bestSeason:"Oct - May", tags:["nature","forest","waterfall"], img:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/27/a4/a8/96/mountain-shadows-resort.jpg?w=700&h=-1&s=1" },
+      { place:"Varkala", state:"Kerala", pricePerDay:2200, bestSeason:"Oct - Mar", tags:["beach","cliff","offbeat"], img:"https://i.pinimg.com/originals/5a/67/1d/5a671d283e0641c1bb35cee673eadab4.jpg" },
+      { place:"Trivandrum", state:"Kerala", pricePerDay:2400, bestSeason:"Oct - Mar", tags:["city","temple","beach"], img:"https://cdn.pixabay.com/photo/2020/04/13/09/11/trivandrum-5037425_960_720.jpg" },
+      { place:"Kanyakumari", state:"Tamil Nadu", pricePerDay:2000, bestSeason:"Oct - Mar", tags:["beach","spiritual","sunset"], img:"https://i.redd.it/86rzp57ktez61.jpg" },
+      { place:"Rameshwaram", state:"Tamil Nadu", pricePerDay:1800, bestSeason:"Oct - Apr", tags:["spiritual","temple","beach"], img:"https://wanderon-images.gumlet.io/blogs/new/2024/07/historical-significance-of-rameshwaram.png" },
+      { place:"Madurai", state:"Tamil Nadu", pricePerDay:2000, bestSeason:"Oct - Mar", tags:["heritage","temple","city"], img:"https://th.bing.com/th/id/R.25871341e7c5a494163d631fcdc29869?rik=i6Bj5VWlpBEkJw&riu=http%3a%2f%2fwww.emperortraveline.com%2fwp-content%2fuploads%2f2017%2f11%2fmadurai-meenakshi-temple.jpg&ehk=aDBA2ENMkmm36ENO%2fUN%2f6U%2fuBETFWEysbOnG7gjrN6A%3d&risl=&pid=ImgRaw&r=0" },
+      { place:"Lakshadweep", state:"Lakshadweep", pricePerDay:5500, bestSeason:"Oct - May", tags:["island","beach","water"], img:"https://i.pinimg.com/736x/a2/cd/24/a2cd24548ed21707c4780ebe14682795.jpg" },
+      { place:"Kolkata", state:"West Bengal", pricePerDay:2400, bestSeason:"Oct - Mar", tags:["city","heritage","food"], img:"https://images.squarespace-cdn.com/content/v1/51a39504e4b093105c265c24/1536533414626-8F6T2DZFJY6L0SZRT2R6/victoria-memorial-reflected.jpg" },
+      { place:"Sundarbans", state:"West Bengal", pricePerDay:3500, bestSeason:"Sep - Mar", tags:["wildlife","nature","forest"], img:"https://i.pinimg.com/originals/72/9a/1f/729a1fed2f8afe8fd0c7ab336ee346db.jpg" },
+      { place:"Kalimpong", state:"West Bengal", pricePerDay:2600, bestSeason:"Mar - May", tags:["hillstation","nature","peace"], img:"https://img.onmanorama.com/content/dam/mm/en/travel/beyond-kerala/images/2019/10/10/kalimpong-monastery.jpg" },
+      { place:"Puri", state:"Odisha", pricePerDay:1800, bestSeason:"Oct - Mar", tags:["spiritual","temple","beach"], img:"https://tse1.mm.bing.net/th/id/OIP.96OhWXLX4KkaZcLiecLA4gHaE6?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Konark", state:"Odisha", pricePerDay:1500, bestSeason:"Oct - Mar", tags:["heritage","temple"], img:"https://www.tripvaani.com/wp-content/uploads/2020/05/Konark-Sun-Temple-or-Black-Pagoda-The-Chariot-of-Sun.jpg" },
+      { place:"Bhubaneswar", state:"Odisha", pricePerDay:2000, bestSeason:"Oct - Mar", tags:["city","temple","heritage"], img:"https://static.toiimg.com/photo/47158773/.jpg" },
+      { place:"Guwahati", state:"Assam", pricePerDay:2200, bestSeason:"Oct - Apr", tags:["city","temple","river"], img:"https://www.oyorooms.com/travel-guide/wp-content/uploads/2019/02/GUWAHATI-1.jpg" },
+      { place:"Shillong", state:"Meghalaya", pricePerDay:2800, bestSeason:"Sep - May", tags:["hillstation","nature","waterfall"], img:"https://tse4.mm.bing.net/th/id/OIP.qJTKLG84fJMpUjr0zcB91gHaEj?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Cherrapunji", state:"Meghalaya", pricePerDay:3000, bestSeason:"Sep - May", tags:["nature","waterfall","offbeat"], img:"https://nomadicweekends.com/blog/wp-content/uploads/2019/11/Cherrapunji.jpg" },
+      { place:"Kaziranga", state:"Assam", pricePerDay:3500, bestSeason:"Nov - Apr", tags:["wildlife","nature"], img:"https://www.kaziranga-national-park.com/blog/wp-content/uploads/2025/07/Rhino-Conservation-Success-Story.jpg" },
+      { place:"Tawang", state:"Arunachal Pradesh", pricePerDay:3200, bestSeason:"Mar - Oct", tags:["mountain","spiritual","snow"], img:"https://media.cntraveller.in/wp-content/uploads/2017/04/tawang-monastery.jpg" },
+      { place:"Gangtok", state:"Sikkim", pricePerDay:3000, bestSeason:"Sep - Jun", tags:["mountain","nature","city"], img:"https://www.holidify.com/images/bgImages/GANGTOK.jpg" },
+      { place:"Pelling", state:"Sikkim", pricePerDay:2800, bestSeason:"Sep - May", tags:["mountain","nature","peace"], img: "https://th.bing.com/th/id/R.750320414923e67abd991385255c3eb2?rik=8RxrEK2RgF6NvA&riu=http%3a%2f%2fd27k8xmh3cuzik.cloudfront.net%2fwp-content%2fuploads%2f2018%2f04%2fpelling-buddha1.jpg&ehk=qOakdARSUnrMreogfH%2fADFeV4KudEGOiMdE%2bafmq6YM%3d&risl=&pid=ImgRaw&r=0"},
+      { place:"Ziro", state:"Arunachal Pradesh", pricePerDay:2500, bestSeason:"Mar - Oct", tags:["valley","nature","offbeat"], img:"https://s3.india.com/wp-content/uploads/2025/01/Explore-Ziro_-The-Perfect-Budget-Destination-For-Nature-Lovers-And-Adventurers.jpg##image/jpg" },
+      { place:"Majuli", state:"Assam", pricePerDay:1800, bestSeason:"Oct - Mar", tags:["island","river","offbeat"], img:"https://superpi.net/wp-content/uploads/2024/10/Majuli-Island.webp" },
+      { place:"Kohima", state:"Nagaland", pricePerDay:2500, bestSeason:"Oct - May", tags:["mountain","heritage","culture"], img:"https://tse1.mm.bing.net/th/id/OIP.4r9CAA7di_keegHDL9YR_QHaDt?rs=1&pid=ImgDetMain&o=7&rm=3" },
+      { place:"Agartala", state:"Tripura", pricePerDay:2000, bestSeason:"Oct - Mar", tags:["heritage","palace","city"], img:"https://th.bing.com/th/id/R.12965cc29571b323ebb3d33aa5f8cf32?rik=6akDmgHinMPD%2bA&riu=http%3a%2f%2fwww.capertravelindia.com%2fimages%2ftipura-1.jpg&ehk=9TyYdWE09nu7HKdk%2bHlELgvirfImSM53hT1yshQcbhs%3d&risl=&pid=ImgRaw&r=0" },
+      { place:"Imphal", state:"Manipur", pricePerDay:2200, bestSeason:"Oct - Mar", tags:["nature","lake","history"], img:"https://www.tourmyindia.com/blog/wp-content/uploads/2017/07/Imphal.jpg" },
+      { place:"Aizawl", state:"Mizoram", pricePerDay:2400, bestSeason:"Oct - Mar", tags:["hillstation","nature","peace"], img:"https://xplro.com/wp-content/uploads/2024/07/Xplro-2024-07-26T002602.142-1024x536.jpg" }
+    ];
+
+    const LS = { USER: 'ii_user', HISTORY: 'ii_history', FAVS: 'ii_favs', THEME: 'ii_theme' };
+
+    let state = {
+      user: JSON.parse(localStorage.getItem(LS.USER) || 'null'),
+      history: JSON.parse(localStorage.getItem(LS.HISTORY) || '[]'),
+      favs: JSON.parse(localStorage.getItem(LS.FAVS) || '[]'),
+      theme: localStorage.getItem(LS.THEME) || 'dark'
+    };
+
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const intro = $('introOverlay');
+        if(intro) intro.remove();
+        if(state.user) showLoggedIn(); else showLoggedOut();
+      }, 5000);
+
+      const dl = $('destList');
+      DESTINATIONS.forEach(d => { const opt = document.createElement('option'); opt.value = d.place; dl.appendChild(opt); });
+
+      $('doLoginBtn').addEventListener('click', login);
+      $('logoutBtn').addEventListener('click', logout);
+      $('clearBtn').addEventListener('click', clearAll);
+      
+      $('exploreBtn').addEventListener('click', () => { showPackages(); });
+      $('guidedBtn').addEventListener('click', startGuidedSearch);
+      $('tourBtn').addEventListener('click', startTour);
+      $('themeBtn').addEventListener('click', toggleTheme);
+      $('priceRange').addEventListener('input', e => { $('priceLabel').innerText = formatRupee(e.target.value); filterByRange(e.target.value); });
+      
+      // Reset Button Click Handler
+      $('resetFiltersBtn').addEventListener('click', resetAllFilters);
+
+      $('userPassInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
+      $('chatInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChat(); });
+      $('chatSendBtn').addEventListener('click', sendChat);
+      $('demoBtn').addEventListener('click', startTour);
+      
+      document.addEventListener('keydown', (e) => {
+        if(e.key === '/' && document.activeElement.id !== 'chatInput' && state.user){ 
+          e.preventDefault(); $('chatInput').focus(); 
+        }
+      });
+
+      applyTheme(state.theme);
+      renderHistory(); renderFavorites();
+      renderPackages(DESTINATIONS);
+    });
+
+    function login(){
+      const nameVal = $('userNameInput').value.trim() || 'Himanshu';
+      const passVal = $('userPassInput').value.trim();
+      
+      if(passVal === '12345'){
+        state.user = nameVal; 
+        localStorage.setItem(LS.USER, JSON.stringify(nameVal));
+        showLoggedIn(); 
+        pushBotMessage(`Namaste ${nameVal} bhai! Aaj India ka kaunsa kona explore karna hai? 🇮🇳`);
+      } else { 
+        alert('Demo access ke liye password "12345" enter karein.'); 
+      }
+    }
+    
+    function logout(){
+      state.user = null; localStorage.removeItem(LS.USER);
+      showLoggedOut(); $('userNameInput').value = ''; $('userPassInput').value = '';
+    }
+
+    function showLoggedIn(){
+      $('loginScreen').style.display = 'none'; $('appScreen').style.display = 'block';
+      $('headerUserName').innerText = `Namaste, ${state.user} ✨`;
+    }
+    
+    function showLoggedOut(){
+      $('loginScreen').style.display = 'flex'; $('appScreen').style.display = 'none';
+    }
+    
+    function clearAll(){
+      if(!confirm('Clear all favorites and search history?')) return;
+      localStorage.removeItem(LS.HISTORY); localStorage.removeItem(LS.FAVS);
+      state.history = []; state.favs = [];
+      renderHistory(); renderFavorites();
+      pushBotMessage("Done bhai! History and Favorites ekdum clear kar diye.");
+    }
+    
+    function applyTheme(t){
+      state.theme = t; localStorage.setItem(LS.THEME, t);
+      if(t === 'light') document.documentElement.classList.add('light-theme');
+      else document.documentElement.classList.remove('light-theme');
+    }
+    function toggleTheme(){ applyTheme(state.theme === 'dark' ? 'light' : 'dark'); }
+
+    function renderSummary(dest='', budget='', days=''){
+      $('summaryDest').innerHTML = `Dest/Vibe: <strong>${dest || 'All'}</strong>`;
+      $('summaryBudget').innerHTML = `Budget: <strong>${budget ? formatRupee(budget) : 'Any'}</strong>`;
+      $('summaryDays').innerHTML = `Days: <strong>${days || '—'}</strong>`;
+    }
+
+    // FUNCTION TO RESET ALL FILTERS BACK TO GENERAL STATE
+    function resetAllFilters() {
+      $('dest').value = '';
+      $('budget').value = '';
+      $('days').value = '';
+      $('priceRange').value = 8000;
+      $('priceLabel').innerText = formatRupee(8000);
+      renderSummary('All', 0, '—');
+      renderPackages(DESTINATIONS);
+    }
+
+    function showPackages(overrideDest = null, overrideBudget = null){
+      const rawDest = (overrideDest !== null) ? overrideDest.trim().toLowerCase() : $('dest').value.trim().toLowerCase();
+      const budget = (overrideBudget !== null) ? overrideBudget : (parseInt($('budget').value) || 0);
+      const days = parseInt($('days').value) || 1;
+      
+      renderSummary(rawDest, budget, days);
+
+      if(rawDest && overrideDest === null){
+        state.history.unshift({ dest: rawDest, budget, days, ts: Date.now() });
+        if(state.history.length > 5) state.history.pop();
+        localStorage.setItem(LS.HISTORY, JSON.stringify(state.history));
+        renderHistory();
+      }
+
+      const results = DESTINATIONS.filter(d => {
+        const matchPlace = rawDest ? (d.place.toLowerCase().includes(rawDest) || d.state.toLowerCase().includes(rawDest) || d.tags.some(t => t.includes(rawDest))) : true;
+        const withinBudget = budget ? (d.pricePerDay * days) <= budget : true;
+        return matchPlace && withinBudget;
+      });
+      renderPackages(results, days);
+    }
+
+    function filterByRange(maxPerDay){
+      const cards = Array.from($('packagesGrid').children);
+      cards.forEach(card => {
+        if(card.dataset.price && parseInt(card.dataset.price) <= maxPerDay) {
+            card.style.display = '';
+        } else if (card.dataset.price) {
+            card.style.display = 'none';
+        }
+      });
+    }
+
+    function renderPackages(list, days=1){
+      const grid = $('packagesGrid'); grid.innerHTML = '';
+      if(!list.length){ 
+        grid.innerHTML = '<div class="card muted" style="grid-column: 1/-1;">Bhai, is criteria mein kuch nahi mila. Thoda budget badha ke ya filter change karke dekho!</div>'; 
+        return; 
+      }
+
+      const renderList = list.slice(0, 100);
+
+      renderList.forEach((pkg, idx) => {
+        const article = document.createElement('article');
+        article.className = 'package';
+        article.dataset.price = pkg.pricePerDay;
+        article.style.animationDelay = `${(idx % 10) * 0.05}s`;
+
+        article.addEventListener('mousemove', (e) => {
+          const rect = article.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          article.style.setProperty('--mouse-x', `${x}px`);
+          article.style.setProperty('--mouse-y', `${y}px`);
+        });
+
+        const media = document.createElement('div'); media.className = 'media img-loading';
+        media.style.backgroundImage = `url('${pkg.img}')`;
+        const img = new Image(); img.src = pkg.img; img.onload = () => media.classList.remove('img-loading');
+
+        const meta = document.createElement('div'); meta.className = 'meta';
+        meta.innerHTML = `
+          <h4>${pkg.place}, <span style="font-size:0.9rem; font-weight:400; color:var(--muted)">${pkg.state}</span></h4>
+          <p>${pkg.tags.join(' • ')}<br/>Best Time: ${pkg.bestSeason}</p>
+          <div class="price">${formatRupee(pkg.pricePerDay)} / day</div>
+        `;
+        
+        const actions = document.createElement('div'); actions.className = 'actions';
+        const view = document.createElement('button'); view.className = 'action-btn primary'; view.innerText = 'View Details';
+        view.onclick = () => openModal(pkg);
+        const save = document.createElement('button'); save.className = 'action-btn ghost'; save.innerText = isFav(pkg.place) ? 'Saved' : 'Save';
+        save.onclick = () => { toggleFav(pkg); save.innerText = isFav(pkg.place) ? 'Saved' : 'Save'; favBadge.innerText = isFav(pkg.place) ? '★' : '☆'; };
+
+        const favBadge = document.createElement('button'); favBadge.className = 'favorite'; favBadge.innerText = isFav(pkg.place) ? '★' : '☆';
+        favBadge.onclick = () => { toggleFav(pkg); favBadge.innerText = isFav(pkg.place) ? '★' : '☆'; save.innerText = isFav(pkg.place) ? 'Saved' : 'Save'; };
+
+        actions.append(view, save); meta.appendChild(actions);
+        article.append(media, meta, favBadge); grid.appendChild(article);
+      });
+      
+      if(list.length > 100) {
+          const msg = document.createElement('div');
+          msg.className = "muted-2"; msg.style.gridColumn = "1/-1"; msg.style.textAlign = "center"; msg.style.padding = "20px";
+          msg.innerText = `Showing top 50 out of ${list.length} results. Please filter to narrow down.`;
+          grid.appendChild(msg);
+      }
+
+      filterByRange(parseInt($('priceRange').value));
+    }
+
+    function openModal(pkg){
+      const overlay = document.createElement('div'); overlay.className = 'modal-overlay';
+      const modal = document.createElement('div'); modal.className = 'modal';
+      modal.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 24px;">
+          <div>
+            <h2 style="margin:0; font-size:1.8rem;">${pkg.place} <span style="font-weight:400; color:var(--muted); font-size:1.2rem">, ${pkg.state}</span></h2>
+            <div class="muted-2" style="margin-top:8px;">Top Tags: ${pkg.tags.join(', ')}</div>
+          </div>
+          <button class="icon-btn" id="closeBtn" style="border:none; background:rgba(255,255,255,0.05);">✕</button>
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 300px; gap: 32px;">
+          <div>
+            <img src="${pkg.img}" alt="${pkg.place}" />
+            <p style="color:var(--muted); line-height: 1.6;">Experience the true essence of ${pkg.place} with our curated itinerary. Enjoy premium stays, authentic local cuisines, and seamless transportation.</p>
+          </div>
+          
+          <div style="background:var(--glass); padding:24px; border-radius:16px; border:1px solid var(--glass-border); height: fit-content;">
+            <div style="font-size: 2rem; font-weight: 800; color: var(--accent); margin-bottom: 4px;">${formatRupee(pkg.pricePerDay)}</div>
+            <div class="muted-2" style="margin-bottom: 24px;">Estimated per person/day</div>
+            <button class="primary-btn" id="bookBtn" style="width: 100%; margin-bottom: 12px; padding:14px;">Book Now (Demo)</button>
+            <button class="icon-btn" id="backBtn" style="width: 100%;">Close Panel</button>
+          </div>
+        </div>
+      `;
+      overlay.appendChild(modal); document.body.appendChild(overlay);
+      requestAnimationFrame(() => overlay.classList.add('open'));
+      const closeModal = () => { overlay.classList.remove('open'); setTimeout(() => document.body.removeChild(overlay), 300); };
+
+      $('bookBtn').onclick = () => { closeModal(); pushBotMessage(`Awesome ${state.user}! Redirecting to booking gateway for ${pkg.place}...`); };
+      $('closeBtn').onclick = closeModal; $('backBtn').onclick = closeModal;
+    }
+
+    document.getElementById('packagesGrid').addEventListener('error', function(e) {
+      if(e.target.tagName === 'IMG') {
+        e.target.src = imgCity; 
+      }
+    }, true);
+
+    function isFav(place){ return state.favs.some(f => f.place === place); }
+    function toggleFav(pkg){
+      const idx = state.favs.findIndex(f => f.place === pkg.place);
+      if(idx >= 0){ state.favs.splice(idx,1); pushBotMessage(`Hata diya ${pkg.place} ko favorites se.`); }
+      else { state.favs.push({ place: pkg.place, ts: Date.now(), pkg }); pushBotMessage(`Kya baat hai! ${pkg.place} favorites mein add ho gaya!`); }
+      localStorage.setItem(LS.FAVS, JSON.stringify(state.favs)); renderFavorites();
+    }
+    function renderFavorites(){
+      const list = $('favList'); list.innerHTML = '';
+      if(!state.favs.length){ list.innerHTML = '<div class="muted-2">Koi favorite nahi hai abhi.</div>'; return; }
+      state.favs.forEach(f => {
+        const el = document.createElement('div'); el.className = 'history-item';
+        el.innerHTML = `<strong>${f.place}</strong> <button class="icon-btn" style="padding:6px 10px; font-size:0.75rem" onclick="removeFav('${f.place}')">Drop</button>`;
+        list.appendChild(el);
+      });
+    }
+    function removeFav(place){ state.favs = state.favs.filter(f => f.place !== place); localStorage.setItem(LS.FAVS, JSON.stringify(state.favs)); renderFavorites(); showPackages(); }
+
+    function renderHistory(){
+      const list = $('historyList'); list.innerHTML = '';
+      if(!state.history.length){ list.innerHTML = '<div class="muted-2">Koi recent search nahi.</div>'; return; }
+      state.history.forEach((h, idx) => {
+        const el = document.createElement('div'); el.className = 'history-item';
+        el.innerHTML = `
+          <div><strong style="color:var(--text-main)">${h.dest}</strong> <span class="muted-2">(${h.days}d)</span></div>
+          <div style="display:flex; gap:6px;">
+            <button class="icon-btn" style="padding:6px; font-size:0.75rem;" onclick="applyHistory(${idx})">Load</button>
+            <button class="icon-btn" style="padding:6px; font-size:0.75rem; color:var(--danger);" onclick="removeHistory(${idx})">✕</button>
+          </div>
+        `;
+        list.appendChild(el);
+      });
+    }
+    function applyHistory(idx){ const h = state.history[idx]; $('dest').value = h.dest; $('budget').value = h.budget; $('days').value = h.days; showPackages(); }
+    function removeHistory(idx){ state.history.splice(idx,1); localStorage.setItem(LS.HISTORY, JSON.stringify(state.history)); renderHistory(); }
+
+    const chatWindow = $('chatWindow');
+
+    function pushBotMessage(message) {
+      const typingDiv = document.createElement('div');
+      typingDiv.style.display = "flex"; typingDiv.style.alignItems = "flex-start"; typingDiv.style.gap = "8px"; typingDiv.style.marginBottom = "12px";
+      typingDiv.innerHTML = `
+          <div class="bot-icon" style="font-size:1.2rem; background:var(--glass); padding:8px; border-radius:50%; border:1px solid var(--glass-border); box-shadow:var(--shadow-soft);">🤖</div>
+          <div class="typing" style="background:rgba(255, 255, 255, 0.03); padding:12px 16px; border-radius:0px 12px 12px 12px; border:1px solid var(--glass-border); margin:0;">
+              <span></span><span></span><span></span>
+          </div>
+      `;
+      chatWindow.appendChild(typingDiv);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+
+      setTimeout(() => {
+        if(chatWindow.contains(typingDiv)) chatWindow.removeChild(typingDiv);
+        
+        const msgDiv = document.createElement('div');
+        msgDiv.style.display = "flex"; msgDiv.style.alignItems = "flex-start"; msgDiv.style.gap = "8px"; msgDiv.style.marginBottom = "12px";
+        msgDiv.innerHTML = `
+            <div class="bot-icon" style="font-size:1.2rem; background:var(--glass); padding:8px; border-radius:50%; border:1px solid var(--glass-border); box-shadow:var(--shadow-soft);">🤖</div>
+            <div class="bot-message" style="background:rgba(255, 255, 255, 0.05); padding:12px 16px; border-radius:0px 12px 12px 12px; color:var(--text-main); font-size:0.95rem; border:1px solid var(--glass-border); max-width:80%; line-height:1.5; animation:popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
+                ${message}
+            </div>
+        `;
+        chatWindow.appendChild(msgDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+      }, 700); 
+    }
+
+    function pushUserMessage(text){
+      const msg = document.createElement('div'); msg.className = 'msg user'; msg.innerText = text;
+      chatWindow.appendChild(msg); chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function sendChat() {
+      const raw = $('chatInput').value.trim(); 
+      if(!raw) return;
+      
+      pushUserMessage(raw); 
+      $('chatInput').value = '';
+      
+      let lowerText = raw.toLowerCase();
+
+      // SMART RESET IN AI CHATBOT (If user says 'show all' or 'reset')
+      if(lowerText.match(/(show all|all packages|reset|sab dikhao|clear filter|wapas)/)) {
+        pushBotMessage(`Bilkul ${state.user} bhai! Saare filters clear kar diye hain. Ab aap poori list fir se check kar sakte hain! 🔄✨`);
+        setTimeout(() => {
+          resetAllFilters();
+        }, 600);
+        return;
+      }
+
+      if(lowerText.match(/^(hi|hello|hey|namaste|aur bhai|kya haal)/)) {
+        const greets = [
+          `Namaste ${state.user} bhai! Kahan ghoomne ka plan ban raha hai? 🤖`,
+          `Hello ${state.user}! Bolo, pahad dekhne hain ya samundar? ✨`,
+          `Hey! Main ekdum ready hoon tumhari trip plan karne ke liye.`
+        ];
+        return pushBotMessage(greets[Math.floor(Math.random() * greets.length)]);
+      }
+      
+      if(lowerText.includes('how are you') || lowerText.includes('kaise ho')) {
+        return pushBotMessage(`Main ekdum badhiya hoon bhai! Ready to book your next trip? 🚀`);
+      }
+      if(lowerText.includes('who are you') || lowerText.includes('tum kaun')) {
+          return pushBotMessage(`Main tumhara apna Incredible India AI Planner chatbot hoon! Smart elements load karne ke liye 'bhedaghat', 'goa' ya 'snow' try karein.`);
+      }
+
+      // 1. SMART LOOKUP LOGIC FOR DESTINATIONS & STATES
+      let foundDest = '';
+      let bestMatch = null;
+
+      for (let i = 0; i < DESTINATIONS.length; i++) {
+        let d = DESTINATIONS[i];
+        if (lowerText.includes(d.place.toLowerCase())) {
+          bestMatch = d.place;
+          break;
+        } else if (lowerText.includes(d.state.toLowerCase())) {
+          bestMatch = d.state;
+          break;
+        }
+      }
+
+      if(!bestMatch) {
+        let words = lowerText.split(/[\s,]+/);
+        for(let w of words) {
+          if(w.length > 2) {
+            let direct = DESTINATIONS.find(d => d.place.toLowerCase().includes(w) || d.state.toLowerCase().includes(w));
+            if(direct) { bestMatch = direct.place; break; }
+          }
+        }
+      }
+      if(bestMatch) foundDest = bestMatch;
+
+      // 2. VIBE MATCHING
+      let foundVibe = "";
+      let vibeReply = "";
+      if(lowerText.match(/(beach|sea|ocean|samundar|coast)/)) {
+        foundVibe = "beach"; vibeReply = "Beaches ka naam sunte hi chill vibes aati hain! Ye lo best coastal options...";
+      } else if (lowerText.match(/(snow|mountain|pahad|hill|cold|barf|skiing)/)) {
+        foundVibe = "snow"; vibeReply = "Pahadon ki thandi hawa aur alpine view! Ye rahe India ke top options...";
+      } else if (lowerText.match(/(spiritual|temple|peace|shanti|mandir|ghats)/)) {
+        foundVibe = "spiritual"; vibeReply = "Mental peace ke liye ye spiritual options ekdum badhiya rahenge...";
+      } else if (lowerText.match(/(heritage|palace|fort|history|mahal|ruins)/)) {
+        foundVibe = "heritage"; vibeReply = "Historical exploration aur royal feel? Ye unique heritage sites dekho...";
+      } else if (lowerText.match(/(nature|waterfall|forest|wildlife|jungle)/)) {
+        foundVibe = "nature"; vibeReply = "Nature and green landscapes lover? Ye core natural ecosystems check karo...";
+      }
+
+      // 3. BUDGET EXTRACTION
+      let budgetVal = null;
+      let foundBudgetNum = lowerText.match(/\b([1-9][0-9]{3,5})\b/);
+      if(foundBudgetNum) budgetVal = parseInt(foundBudgetNum[1]);
+      
+      if(lowerText.match(/(cheap|sasta|low budget|student|budget)/)) {
+        if(!budgetVal) budgetVal = 12000; 
+        if(!vibeReply) vibeReply = "Budget thoda tight hai? Fikr mat karo bhai, low cost packages layout ready hai...";
+      }
+
+      // 4. DAYS EXTRACTION
+      let foundDays = lowerText.match(/\b([1-9]|1[0-9])\s*(day|days|din)\b/);
+      let daysVal = foundDays ? parseInt(foundDays[1]) : null;
+
+      // 5. EXECUTE RADICAL PARSING AND GRID RE-RENDER
+      if(foundDest || foundVibe || budgetVal || daysVal) {
+        let reply = vibeReply || "Done bhai! System filter update kar rha hai. ";
+        let searchKeyword = foundDest || foundVibe || "";
+        
+        if(foundDest) {
+            $('dest').value = foundDest;
+            if(!vibeReply) reply += `**${foundDest}** ke packages track kar liye hain. `;
+        } else if(foundVibe) {
+            $('dest').value = foundVibe;
+        }
+        
+        if(budgetVal) {
+            $('budget').value = budgetVal;
+            reply += `Budget dynamically set to ₹${budgetVal}. `;
+        }
+        if(daysVal) {
+            $('days').value = daysVal;
+            reply += `Trip timeline updated to ${daysVal} din. `;
+        }
+        
+        reply += `Lo instantaneous response generate kar diya hai!`;
+        pushBotMessage(reply);
+        
+        setTimeout(() => {
+            showPackages(searchKeyword || null, budgetVal || null);
+        }, 600);
+        
+      } else {
+        const randomReplies = [
+            `Baat toh sahi hai ${state.user} bhai, par chalo ek master tour finalize karte hain! Kahan ka mood hai?`,
+            `Main active travel configuration engine hoon! Destination ka naam, koi vibe ('beach'/'snow') ya pricing likho, main turant filter kar dunga.`,
+            `Interesting conversation! By the way, aapne hamare Bhedaghat ya Khajuraho wale dynamic local packages dekhe?`,
+            `Sahi hai! Mujhe koi accurate location name ya zone batao, main dynamic list auto-compute kar dunga.`
+        ];
+        pushBotMessage(randomReplies[Math.floor(Math.random() * randomReplies.length)]);
+      }
+    }
+
+    function startGuidedSearch(){
+      pushBotMessage(`Chalo ${state.user} bhai, plan banate hain! Batao, pahaad (Mountains) ghoomna hai ya Samundar (Beaches)?`);
+    }
+    function startTour(){
+      $('dest').value = 'Madhya Pradesh'; $('budget').value = 15000; $('days').value = 3;
+      pushBotMessage("Starting Demo Tour... Loading Central India / Madhya Pradesh structural nodes.");
+      setTimeout(() => showPackages('Madhya Pradesh'), 800);
+    }
+
+    window.applyHistory = applyHistory; window.removeHistory = removeHistory; window.removeFav = removeFav;
+  </script>
+</body>
+</html>
