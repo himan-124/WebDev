@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Incredible India Travel Planner</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🇮🇳 Incredible India Travel Planner</h1>
+    <button id="darkModeToggle">🌙 Toggle Dark Mode</button>
+  </header>
+
+  <div class="container">
+    <!-- Login -->
+    <div id="loginBox">
+      <h2>Visitor Login</h2>
+      <input type="text" id="username" placeholder="Enter your name">
+      <input type="password" id="password" placeholder="Enter temporary password">
+      <button onclick="login()">Login</button>
+    </div>
+
+    <!-- Travel Planner -->
+    <div id="travelForm" style="display:none;">
+      <h2>Plan Your Trip in India</h2>
+      <input type="text" id="destination" placeholder="Destination (e.g., Goa)">
+      <input type="number" id="budget" placeholder="Max Budget (₹)">
+      <input type="number" id="days" placeholder="Travel Days">
+      <button onclick="showPackages()">Explore Packages</button>
+      <button onclick="logout()">Logout</button>
+
+      <div class="packages" id="packages"></div>
+
+      <!-- Chatbot -->
+      <div class="chatbot" id="chatbot">
+        <h3>Travel Assistant 🤖</h3>
+        <div id="chatWindow"></div>
+        <input type="text" id="chatInput" placeholder="Ask me about Indian trips...">
+        <button onclick="chat()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Made for Indian Travel Enthusiasts | © 2026</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

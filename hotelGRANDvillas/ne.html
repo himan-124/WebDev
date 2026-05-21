@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Villas | The Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* --- 1. GLOBAL & ANIMATIONS --- */
+        :root {
+            --gold: #d4af37;
+            --dark: #0f0f0f;
+            --glass: rgba(20, 20, 20, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --text-gray: #ccc;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark);
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            background-image: url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.95));
+            backdrop-filter: blur(8px); z-index: 0;
+        }
+
+        .app-container {
+            position: relative; z-index: 1; height: 100%; width: 100%;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .screen {
+            display: none; width: 95%; max-width: 1200px; height: 90%;
+            animation: fadeIn 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            overflow-y: auto; padding: 20px; flex-direction: column;
+        }
+
+        .screen::-webkit-scrollbar { width: 6px; }
+        .screen::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+        .screen::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+
+        .active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); filter: blur(10px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        /* --- 2. COMPONENTS --- */
+        .glass-panel {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            margin: auto; max-width: 500px; width: 100%; text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .brand-title {
+            font-family: 'Playfair Display', serif; font-size: 4.5rem; color: var(--gold);
+            text-shadow: 0 0 25px rgba(212, 175, 55, 0.6); text-align: center; margin: auto; letter-spacing: 2px;
+        }
+
+        h2 { color: var(--gold); font-family: 'Playfair Display', serif; margin-bottom: 20px; text-align: center; font-size: 2.2rem; }
+        
+        input, select, textarea {
+            width: 100%; padding: 15px; margin: 10px 0;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            color: white; border-radius: 8px; font-family: inherit; transition: 0.3s;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); background: rgba(255,255,255,0.1); box-shadow: 0 0 10px rgba(212,175,55,0.3); }
+        
+        .error-msg { color: var(--danger); font-size: 0.85rem; text-align: left; display: none; margin-top: -5px; margin-bottom: 10px; }
+
+        button {
+            width: 100%; padding: 15px; background: var(--gold); border: none;
+            color: black; font-weight: bold; cursor: pointer; border-radius: 8px;
+            margin-top: 15px; transition: all 0.3s ease; letter-spacing: 1px; text-transform: uppercase;
+        }
+        button:hover { background: white; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.4); }
+        button:active { transform: translateY(0); }
+
+        /* --- DASHBOARD --- */
+        .welcome-header { margin-bottom: 40px; text-align: center; position: relative; }
+        .logout-btn { position: absolute; right: 0; top: 0; width: auto; padding: 8px 20px; font-size: 0.8rem; background: transparent; color: var(--danger); border: 1px solid var(--danger); margin: 0; }
+        .logout-btn:hover { background: var(--danger); color: white; }
+
+        .dashboard-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 25px; width: 100%; padding-bottom: 40px;
+        }
+        
+        .card { 
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); 
+            padding: 30px; text-align: center; border-radius: 15px; cursor: pointer; 
+            transition: 0.4s; position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--gold); transform: scaleX(0); transition: 0.4s; transform-origin: left; }
+        .card:hover { transform: translateY(-8px); background: rgba(255,255,255,0.08); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+        .card:hover::before { transform: scaleX(1); }
+        .card i { font-size: 2.8rem; color: var(--gold); margin-bottom: 15px; transition: 0.3s; }
+        .card:hover i { transform: scale(1.1); }
+
+        /* --- ROOMS, REVIEWS & BILLING --- */
+        .room-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .room-card { background: rgba(255,255,255,0.05); border-radius: 15px; overflow: hidden; transition: 0.3s; }
+        .room-card:hover { transform: scale(1.02); }
+        .room-card img { width: 100%; height: 200px; object-fit: cover; }
+        .room-details { padding: 20px; }
+        
+        .review-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .review-card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; border-left: 3px solid var(--gold); }
+        .stars { color: #f1c40f; margin-bottom: 10px; }
+        
+        .bill-table { width: 100%; border-collapse: collapse; margin: 20px 0; background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .bill-table td, .bill-table th { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .total-row { color: var(--gold); font-size: 1.3rem; font-weight: bold; }
+        .discount-row { color: var(--success); font-weight: bold; }
+
+        /* --- SMART DINING MENU --- */
+        .menu-container { display: flex; gap: 30px; flex-wrap: wrap; margin-top: 20px; }
+        .menu-left { flex: 2; min-width: 300px; }
+        .menu-right { flex: 1; min-width: 300px; background: var(--glass); padding: 25px; border-radius: 15px; border: 1px solid var(--gold); height: fit-content; }
+        
+        .menu-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        .tab-btn { width: auto; padding: 10px 25px; background: transparent; border: 1px solid var(--gold); color: var(--gold); font-size: 0.95rem; border-radius: 30px; margin-top: 0; }
+        .tab-btn.active-tab { background: var(--gold); color: black; box-shadow: 0 0 15px rgba(212,175,55,0.4); }
+        
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(0,0,0,0.5); border-radius: 8px; border-left: 3px solid transparent; transition: 0.3s; }
+        .menu-item:hover { border-left: 3px solid var(--gold); background: rgba(255,255,255,0.05); }
+        .item-code { font-size: 0.8rem; background: var(--gold); color: black; padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
+        
+        .order-input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        .order-input-group input { margin: 0; }
+        .cart-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed rgba(255,255,255,0.2); font-size: 0.9rem; }
+        .cart-total { font-size: 1.2rem; font-weight: bold; color: var(--gold); text-align: right; margin-top: 20px; border-top: 2px solid var(--gold); padding-top: 10px; }
+        .remove-btn { color: var(--danger); cursor: pointer; background: none; border: none; width: auto; padding: 0; margin: 0; font-size: 1rem; }
+        .remove-btn:hover { color: white; background: none; box-shadow: none; transform: scale(1.1); }
+
+        /* --- TOAST & FAB --- */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: var(--gold); color: black;
+            text-align: center; border-radius: 8px; padding: 16px; position: fixed;
+            z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%);
+            font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.5s; opacity: 0;
+        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        
+        .fab-btn {
+            position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px;
+            background: var(--gold); border-radius: 50%; display: flex;
+            justify-content: center; align-items: center; color: black;
+            font-size: 26px; box-shadow: 0 10px 25px rgba(212,175,55,0.4); cursor: pointer; z-index: 100; transition: 0.3s;
+        }
+        .fab-btn:hover { transform: scale(1.1) rotate(15deg); background: white; }
+        .back-btn { width: auto; position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.6); border: 1px solid var(--gold); color: white; padding: 10px 25px; z-index: 10; border-radius: 30px; }
+        .app-footer { margin-top: auto; padding: 20px; text-align: center; color: #777; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.1); }
+
+        /* --- 🔥 PREMIUM CONFIRMATION MODAL --- */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 2000;
+            justify-content: center; align-items: center; opacity: 0; transition: opacity 0.4s ease;
+        }
+        .modal-overlay.show { opacity: 1; }
+        .modal-content {
+            background: var(--glass); border: 1px solid var(--gold); border-radius: 20px;
+            padding: 40px; text-align: center; max-width: 450px; width: 90%;
+            transform: translateY(50px); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 20px 50px rgba(212,175,55,0.2);
+        }
+        .modal-overlay.show .modal-content { transform: translateY(0); }
+
+        /* --- 🔥 PRINT INVOICE STYLING --- */
+        @media print {
+            body { background: white !important; color: black !important; }
+            .overlay, .fab-btn, .back-btn, button, .app-footer, .modal-overlay { display: none !important; }
+            .screen { display: none !important; }
+            #billing-screen { 
+                display: block !important; position: absolute; top: 0; left: 0; 
+                width: 100%; height: auto; background: white; color: black; 
+            }
+            .glass-panel { border: none; box-shadow: none; background: white; color: black; padding: 0; margin: 0; max-width: 100%; }
+            * { text-shadow: none !important; color: black !important; }
+            h2, .total-row { color: black !important; }
+            .bill-table td, .bill-table th { border-bottom: 1px solid #ddd; color: black; padding: 10px; }
+            .bill-table { margin-top: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+    <div id="toast">Message here</div>
+
+    <div class="fab-btn" onclick="alert('Concierge: Namaste! How may I assist you today? Our reception is calling you shortly.')">
+        <i class="fas fa-headset"></i>
+    </div>
+
+    <div class="app-container">
+
+        <div id="intro-screen" class="screen active" style="justify-content: center;">
+            <h1 class="brand-title">Grand Villas<br><span style="font-size: 1.5rem; letter-spacing: 12px; color: white; display: block; margin-top: 15px; font-family: 'Poppins', sans-serif; font-weight: 300;">EST. 1998</span></h1>
+        </div>
+
+        <div id="login-screen" class="screen" style="justify-content: center;">
+            <div class="glass-panel">
+                <h2>Guest Check-In</h2>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <input type="text" id="userName" placeholder="Full Name" required autocomplete="off">
+                    <input type="tel" id="userPhone" placeholder="Mobile Number (10-11 Digits)" required 
+                           pattern="[0-9]{10,11}" title="Please enter exactly 10 or 11 digits" oninput="validatePhone()">
+                    <div id="phoneError" class="error-msg">Number must be 10 or 11 digits only.</div>
+                    <button type="submit" id="loginBtn">Enter Grand Villas</button>
+                </form>
+                <p style="margin-top: 25px; font-size: 0.8rem; color: #aaa;">By entering, you agree to our Terms of Luxury.</p>
+            </div>
+        </div>
+
+        <div id="dashboard-screen" class="screen">
+            <div class="welcome-header">
+                <button class="logout-btn" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                <h1 style="font-family: 'Playfair Display'; font-size: 3.5rem; margin-top: 20px;">Welcome, <span id="display-name" style="color: var(--gold);">Guest</span></h1>
+                <p style="color: #ccc; font-size: 1.1rem; letter-spacing: 1px;">Experience the extraordinary at Delhi's Finest.</p>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(0,0,0,0.8)); border-color: var(--gold);" onclick="showScreen('booking-form-screen')">
+                    <i class="fas fa-bell-concierge" style="color: white;"></i>
+                    <h3 style="color: white; font-size: 1.8rem;">Book Your Stay</h3>
+                    <p style="font-size: 1rem; color: var(--gold); margin-top: 10px;">Use code <strong>GRAND20</strong> for 20% privilege discount</p>
+                </div>
+                <div class="card" onclick="showScreen('room-info-screen')"><i class="fas fa-bed"></i><h3>Suites & Rooms</h3></div>
+                <div class="card" onclick="showScreen('menu-screen')"><i class="fas fa-utensils"></i><h3>Smart Dining</h3></div>
+                <div class="card" onclick="showScreen('amenities-screen')"><i class="fas fa-spa"></i><h3>Amenities</h3></div>
+                <div class="card" onclick="showScreen('reviews-screen')"><i class="fas fa-star"></i><h3>Guest Reviews</h3></div>
+                <div class="card" onclick="showScreen('status-screen')"><i class="fas fa-calendar-check"></i><h3>Availability</h3></div>
+                <div class="card" onclick="showScreen('booking-info-screen')"><i class="fas fa-info-circle"></i><h3>Policies</h3></div>
+            </div>
+
+            <div class="app-footer">
+                &copy; 2026 Grand Villas Resort. All rights reserved. <br> Delhi, India.
+            </div>
+        </div>
+
+        <div id="amenities-screen" class="screen">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')">← Back</button>
+            <h2 style="margin-top: 60px;">World Class Amenities</h2>
+            <div class="dashboard-grid">
+                <div class="card"><i class="fas fa-swimming-pool"></i><h3>Infinity Pool</h3><p>Open 6 AM - 10 PM</p></div>
+                <div class="card"><i class="fas fa-dumbbell"></i><h3>Titanium Gym</h3><p>24/7 Access</p></div>
+                <div class="card"><i class="fas fa-hot-tub"></i><h3>Aura Spa</h3><p>Therapeutic Massage</p></div>
+                <div class="card"><i class="fas fa-wifi"></i><h3>High-Speed Wifi</h3><p>1 Gbps Fiber</p></div>
+            </div>
+        </div>
+
+        <div id="reviews-screen" class="screen">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')">← Back</button>
+            <h2 style="margin-top: 60px;">What Guests Say</h2>
+            <div class="review-grid">
+                <div class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"The Royal Suite was absolutely breathtaking. The service is unmatched in the city."</p>
+                    <p style="margin-top: 10px; color: var(--gold); font-size: 0.8rem;">- Rahul S.</p>
+                </div>
+                <div class="review-card">
+                    <div class="stars">★★★★☆</div>
+                    <p>"Great vibe. All around the great aesthetic vibe."</p>
+                    <p style="margin-top: 10px; color: var(--gold); font-size: 0.8rem;">- Nisha P.</p>
+                </div>
+                <div class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"Best food I've had in a long time. The Dal Makhani is a must-try!"</p>
+                    <p style="margin-top: 10px; color: var(--gold); font-size: 0.8rem;">- Priya M.</p>
+                </div>
+                <div class="review-card">
+                    <div class="stars">★★★★☆</div>
+                    <p>"Great family vibe. The pool area is very clean and safe for kids."</p>
+                    <p style="margin-top: 10px; color: var(--gold); font-size: 0.8rem;">- Amit K.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="room-info-screen" class="screen">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')">← Back</button>
+            <h2 style="margin-top: 60px;">Accommodations</h2>
+            <div class="room-types">
+                <div class="room-card">
+                    <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=500" alt="Standard">
+                    <div class="room-details">
+                        <h3>Standard Comfort</h3>
+                        <p style="color:#aaa; font-size:0.9rem;">Perfect for business travelers.</p>
+                        <p style="color:var(--gold); margin-top:5px;">₹5,000 / Night</p>
+                    </div>
+                </div>
+                <div class="room-card">
+                    <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=500" alt="Deluxe">
+                    <div class="room-details">
+                        <h3>Deluxe View</h3>
+                        <p style="color:#aaa; font-size:0.9rem;">City view with premium bath.</p>
+                        <p style="color:var(--gold); margin-top:5px;">₹8,000 / Night</p>
+                    </div>
+                </div>
+                <div class="room-card">
+                    <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=500" alt="Royal">
+                    <div class="room-details">
+                        <h3>King Royal Suite</h3>
+                        <p style="color:#aaa; font-size:0.9rem;">The ultimate luxury experience.</p>
+                        <p style="color:var(--gold); margin-top:5px;">₹15,000 / Night</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="status-screen" class="screen">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')">← Back</button>
+            <div class="glass-panel" style="margin-top: 60px;">
+                <h2>Live Availability</h2>
+                <div style="text-align: left; margin-top: 20px;">
+                    <p style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;">
+                        <span>👑 King Suite</span> <span style="color: #e74c3c; font-weight: bold;">Sold Out</span>
+                    </p>
+                    <p style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;">
+                        <span>💎 Deluxe Room</span> <span style="color: #2ecc71; font-weight: bold;">5 Available</span>
+                    </p>
+                    <p style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;">
+                        <span>🏠 Family Suite</span> <span style="color: #f1c40f; font-weight: bold;">2 Available</span>
+                    </p>
+                    <p style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;">
+                        <span>🛏️ Standard AC</span> <span style="color: #2ecc71; font-weight: bold;">12 Available</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="booking-info-screen" class="screen">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')">← Back</button>
+            <div class="glass-panel" style="max-width: 800px; margin-top: 60px;">
+                <h2>House Policies</h2>
+                <ul style="text-align: left; padding: 20px; line-height: 2; list-style: none;">
+                    <li>🆔 <strong>ID Proof:</strong> Valid Government ID required for all guests.</li>
+                    <li>⏰ <strong>Timings:</strong> Check-in: 12:00 PM | Check-out: 11:00 AM.</li>
+                    <li>💳 <strong>Payment:</strong> 100% advance required for Promo Rates.</li>
+                    <li>🔇 <strong>Noise:</strong> Quiet hours start at 10:00 PM.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="menu-screen" class="screen">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')"><i class="fas fa-arrow-left"></i> Back</button>
+            <h2 style="margin-top: 60px; font-size: 3rem;">In-Room Dining</h2>
+            
+            <div class="menu-container">
+                <div class="menu-left">
+                    <input type="text" id="menuSearch" placeholder="🔍 Search dishes (e.g. Paneer, Pizza)..." onkeyup="filterMenu()" style="border-radius: 30px; padding: 15px 25px; margin-bottom: 20px;">
+                    <div class="menu-tabs" id="menu-tabs"></div>
+                    <div class="menu-grid" id="menu-list"></div>
+                </div>
+
+                <div class="menu-right">
+                    <h3 style="color: var(--gold); margin-bottom: 20px; font-family: 'Playfair Display', serif; font-size: 1.8rem;"><i class="fas fa-concierge-bell"></i> Quick Order</h3>
+                    <p style="font-size: 0.85rem; color: #aaa; margin-bottom: 15px;">Enter the 3-digit Item Code to add to tray.</p>
+                    <div class="order-input-group">
+                        <input type="number" id="itemCodeInput" placeholder="Code (e.g. 101)" style="flex: 2;">
+                        <input type="number" id="itemQtyInput" value="1" min="1" style="flex: 1;">
+                    </div>
+                    <button onclick="addItemToCart()" style="margin-top: 0; padding: 10px;">Add to Tray</button>
+                    <h4 style="margin-top: 30px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">Your Tray</h4>
+                    <div id="cart-items" style="margin-top: 15px; min-height: 150px;">
+                        <p style="color: #666; font-size: 0.9rem; text-align: center; margin-top: 20px;">Tray is empty</p>
+                    </div>
+                    <div class="cart-total">Total: ₹<span id="cart-total-amt">0</span></div>
+                    <button onclick="placeOrder()" style="background: white; color: black; margin-top: 20px;">Confirm Order</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="booking-form-screen" class="screen">
+            <button class="back-btn" onclick="showScreen('dashboard-screen')">← Back</button>
+            <div class="glass-panel" style="margin-top: 60px;">
+                <h2>Reserve Your Stay</h2>
+                <form onsubmit="generateBill(event)">
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex:1;"><label style="font-size:0.8rem">Check In</label><input type="date" id="checkin" required></div>
+                        <div style="flex:1;"><label style="font-size:0.8rem">Check Out</label><input type="date" id="checkout" required></div>
+                    </div>
+                    <select id="roomTypeSelect" required>
+                        <option value="" disabled selected>Select Experience</option>
+                        <option value="King Royal" data-price="15000">King Royal - ₹15,000</option>
+                        <option value="Deluxe" data-price="8000">Deluxe - ₹8,000</option>
+                        <option value="Family Suite" data-price="10000">Family Suite - ₹10,000</option>
+                        <option value="Standard AC" data-price="5000">Standard AC - ₹5,000</option>
+                    </select>
+                    <input type="text" id="promoCode" placeholder="Promo Code (Optional)">
+                    <textarea placeholder="Special Requests" rows="2"></textarea>
+                    <button type="submit">Calculate Bill</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="billing-screen" class="screen">
+            <button class="back-btn" onclick="showScreen('booking-form-screen')">← Edit</button>
+            <div class="glass-panel" style="max-width: 800px; margin-top: 60px;">
+                <h2 style="font-size: 3rem; margin-bottom: 5px;">Grand Villas</h2>
+                <p style="color: #888; margin-bottom: 30px; font-size: 0.9rem;">Official Invoice</p>
+                <div id="bill-details"></div>
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <button style="background: transparent; border: 1px solid var(--gold); color: white;" onclick="window.print()"><i class="fas fa-print"></i> Print Invoice</button>
+                    <button onclick="finishBooking()"><i class="fas fa-check"></i> Confirm & Pay</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="success-screen" class="screen" style="justify-content: center;">
+            <div class="glass-panel">
+                <i class="fas fa-check-circle" style="font-size: 5rem; color: #2ecc71; margin-bottom: 20px;"></i>
+                <h2>Booking Confirmed!</h2>
+                <p>Thank you, <span id="final-name" style="color: var(--gold); font-weight:bold;">User</span>.</p>
+                <button onclick="location.reload()" style="margin-top: 30px;">Return to Main Desk</button>
+            </div>
+        </div>
+
+        <div id="booking-modal" class="modal-overlay">
+            <div class="modal-content">
+                <i class="fas fa-envelope-open-text" style="font-size: 3.5rem; color: var(--gold); margin-bottom: 20px;"></i>
+                <h2 style="font-size: 1.8rem; margin-bottom: 15px; color: var(--gold); font-family: 'Playfair Display', serif;">A Gentle Reminder</h2>
+                <p style="color: #ddd; font-size: 0.95rem; line-height: 1.6;">
+                    Dear <strong style="color: var(--gold);"><span id="modal-guest-name">Guest</span></strong>, we are thrilled to host you at Grand Villas.<br><br>
+                    Please ensure you carry a valid Government ID for a smooth check-in experience. Shall we proceed to finalize your royal stay?
+                </p>
+                <div style="display: flex; gap: 15px; margin-top: 25px;">
+                    <button style="background: transparent; border: 1px solid var(--danger); color: white;" onclick="closeModal()">Review Again</button>
+                    <button onclick="confirmFinalBooking()">Yes, Confirm</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentUserName = "Guest";
+        let cart = [];
+
+        // --- PERSISTENT DATA WITH 3-SECOND INTRO ---
+        window.onload = () => {
+            setupSmartDates();
+            
+            setTimeout(() => {
+                const savedUser = localStorage.getItem('gv_username');
+                if(savedUser) {
+                    currentUserName = savedUser;
+                    document.getElementById('display-name').innerText = currentUserName;
+                    document.getElementById('final-name').innerText = currentUserName;
+                    
+                    const savedCart = localStorage.getItem('gv_cart');
+                    if(savedCart) { cart = JSON.parse(savedCart); updateCartUI(); }
+                    
+                    showScreen('dashboard-screen'); 
+                } else {
+                    showScreen('login-screen');
+                }
+            }, 3000); // 3 seconds intro animation
+        };
+
+        function logoutUser() {
+            localStorage.removeItem('gv_username');
+            localStorage.removeItem('gv_phone');
+            localStorage.removeItem('gv_cart');
+            location.reload(); 
+        }
+
+        // Navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+            const target = document.getElementById(screenId);
+            target.style.display = 'flex';
+            setTimeout(() => target.classList.add('active'), 10);
+        }
+
+        // Toast Notifier
+        function showToast(message, isError = false) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.style.backgroundColor = isError ? "var(--danger)" : "var(--success)";
+            toast.style.color = "white";
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        // Phone Validation
+        function validatePhone() {
+            const phoneInput = document.getElementById('userPhone');
+            const errorMsg = document.getElementById('phoneError');
+            const btn = document.getElementById('loginBtn');
+            const isValid = /^[0-9]{10,11}$/.test(phoneInput.value);
+            
+            if (phoneInput.value.length > 0 && !isValid) {
+                errorMsg.style.display = 'block'; phoneInput.style.borderColor = 'var(--danger)'; btn.disabled = true; btn.style.opacity = '0.5';
+            } else {
+                errorMsg.style.display = 'none'; phoneInput.style.borderColor = 'var(--glass-border)'; btn.disabled = false; btn.style.opacity = '1';
+            }
+        }
+
+        // Login Submit
+        function handleLogin(e) {
+            e.preventDefault();
+            const inputName = document.getElementById('userName').value;
+            const phoneInput = document.getElementById('userPhone').value;
+            if(!/^[0-9]{10,11}$/.test(phoneInput)) { showToast("Valid 10-11 digit phone required.", true); return; }
+            
+            currentUserName = inputName;
+            localStorage.setItem('gv_username', currentUserName);
+            localStorage.setItem('gv_phone', phoneInput);
+
+            document.getElementById('display-name').innerText = currentUserName;
+            document.getElementById('final-name').innerText = currentUserName;
+            showToast(`Welcome to Grand Villas, ${currentUserName}!`);
+            showScreen('dashboard-screen');
+        }
+
+        // --- SMART DATE LOGIC ---
+        function setupSmartDates() {
+            const checkinInput = document.getElementById('checkin');
+            const checkoutInput = document.getElementById('checkout');
+            const today = new Date().toISOString().split('T')[0]; 
+            checkinInput.setAttribute('min', today); 
+            
+            checkinInput.addEventListener('change', function() {
+                checkoutInput.setAttribute('min', this.value); 
+                if(checkoutInput.value && checkoutInput.value < this.value) { checkoutInput.value = ''; }
+            });
+        }
+
+        // Billing
+        function generateBill(e) {
+            e.preventDefault();
+            const select = document.getElementById('roomTypeSelect');
+            const roomName = select.value;
+            const roomPrice = parseInt(select.options[select.selectedIndex].getAttribute('data-price'));
+            const promoInput = document.getElementById('promoCode').value.toUpperCase().trim();
+            const checkin = document.getElementById('checkin').value;
+            const checkout = document.getElementById('checkout').value;
+            
+            const serviceCharge = 1000; const subtotal = roomPrice + serviceCharge;
+            let discount = 0; let discountText = "";
+
+            if (promoInput === "GRAND20") { discount = Math.round(subtotal * 0.20); discountText = "Promo Applied (GRAND20)"; }
+            const taxAmount = subtotal * 0.12; const total = (subtotal - discount) + taxAmount;
+
+            const billHTML = `
+                <div style="text-align: left; margin-bottom: 20px; font-size: 0.9rem; border-bottom: 1px solid #444; padding-bottom: 10px;">
+                    <p><strong>Guest Name:</strong> ${currentUserName}</p>
+                    <p><strong>Stay Duration:</strong> ${checkin} to ${checkout}</p>
+                </div>
+                <table class="bill-table">
+                    <thead><tr><th>Description</th><th>Amount</th></tr></thead>
+                    <tbody>
+                        <tr><td>Room (${roomName})</td><td>₹${roomPrice.toLocaleString()}</td></tr>
+                        <tr><td>Service & Maintenance</td><td>₹${serviceCharge.toLocaleString()}</td></tr>
+                        <tr><td style="text-align:right;"><strong>Subtotal</strong></td><td><strong>₹${subtotal.toLocaleString()}</strong></td></tr>
+                        ${discount > 0 ? `<tr class="discount-row"><td style="text-align:right;">${discountText}</td><td>- ₹${discount.toLocaleString()}</td></tr>` : ''}
+                        <tr><td style="text-align:right; color:#888;">GST Tax (12%)</td><td style="color:#888;">₹${taxAmount.toLocaleString()}</td></tr>
+                        <tr class="total-row"><td style="text-align:right;">Grand Total</td><td>₹${Math.round(total).toLocaleString()}</td></tr>
+                    </tbody>
+                </table>
+                <p style="font-size: 0.8rem; text-align: center; color: #888; margin-top: 30px;">System Generated Invoice | Delhi Branch</p>
+            `;
+            document.getElementById('bill-details').innerHTML = billHTML;
+            showScreen('billing-screen');
+        }
+
+        // --- SMART POPUP LOGIC ---
+        function finishBooking() {
+            document.getElementById('modal-guest-name').innerText = currentUserName;
+            const modal = document.getElementById('booking-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('booking-modal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 400);
+        }
+
+        function confirmFinalBooking() {
+            closeModal();
+            showScreen('success-screen');
+            showToast("Reservation Successful! We await your arrival.");
+        }
+
+        // --- FULL MENU DATA (69 Items) ---
+        const fullMenu = [
+            { id: 101, category: "Breakfast", name: "Masala Dosa", price: 180 }, { id: 102, category: "Breakfast", name: "Idli Sambar", price: 120 },
+            { id: 103, category: "Breakfast", name: "Aloo Paratha", price: 140 }, { id: 104, category: "Breakfast", name: "Poha", price: 80 },
+            { id: 105, category: "Breakfast", name: "Pancakes", price: 210 }, { id: 106, category: "Breakfast", name: "Omelette", price: 110 },
+            { id: 107, category: "Breakfast", name: "Fruit Salad", price: 260 }, { id: 108, category: "Breakfast", name: "Corn Flakes", price: 60 },
+            { id: 109, category: "Breakfast", name: "Chole Bhature", price: 190 }, { id: 110, category: "Breakfast", name: "Upma", price: 80 },
+            
+            { id: 201, category: "Starters", name: "Paneer Tikka", price: 320 }, { id: 202, category: "Starters", name: "Chicken 65", price: 410 },
+            { id: 203, category: "Starters", name: "Spring Rolls", price: 160 }, { id: 204, category: "Starters", name: "Hara Bhara Kabab", price: 170 },
+            { id: 205, category: "Starters", name: "Chilly Paneer", price: 375 }, { id: 206, category: "Starters", name: "Fish Fingers", price: 285 },
+            { id: 207, category: "Starters", name: "Mushroom Tikka", price: 270 }, { id: 208, category: "Starters", name: "Corn Salt & Pepper", price: 140 },
+            { id: 209, category: "Starters", name: "Tandoori Aloo", price: 120 }, { id: 210, category: "Starters", name: "Seekh Kabab", price: 490 },
+            
+            { id: 301, category: "Lunch", name: "Dal Makhani", price: 260 }, { id: 302, category: "Lunch", name: "Butter Chicken", price: 480 },
+            { id: 303, category: "Lunch", name: "Kadai Paneer", price: 340 }, { id: 304, category: "Lunch", name: "Roganjosh", price: 430 },
+            { id: 305, category: "Lunch", name: "Biryani (Veg/Non-Veg)", price: 460 }, { id: 306, category: "Lunch", name: "Naan Basket", price: 190 },
+            { id: 307, category: "Lunch", name: "Jeera Rice", price: 110 }, { id: 308, category: "Lunch", name: "Mixed Veg", price: 290 },
+            { id: 309, category: "Lunch", name: "Malai Kofta", price: 280 }, { id: 310, category: "Lunch", name: "Rajma Chawal", price: 340 },
+            
+            { id: 401, category: "Snacks", name: "Samosa", price: 60 }, { id: 402, category: "Snacks", name: "Kachori", price: 70 },
+            { id: 403, category: "Snacks", name: "Sandwich", price: 120 }, { id: 404, category: "Snacks", name: "Burger", price: 110 },
+            { id: 405, category: "Snacks", name: "French Fries", price: 140 }, { id: 406, category: "Snacks", name: "Momos", price: 160 },
+            { id: 407, category: "Snacks", name: "Pasta", price: 180 }, { id: 408, category: "Snacks", name: "Pizza (regular)", price: 355 },
+            { id: 409, category: "Snacks", name: "Garlic Bread", price: 245 }, { id: 410, category: "Snacks", name: "Nachos", price: 220 },
+            
+            { id: 501, category: "Dinner", name: "Hyderabadi Biryani", price: 455 }, { id: 502, category: "Dinner", name: "Palak Paneer", price: 365 },
+            { id: 503, category: "Dinner", name: "Mutton Curry", price: 448 }, { id: 504, category: "Dinner", name: "Fish Curry", price: 285 },
+            { id: 505, category: "Dinner", name: "Tandoori Roti", price: 120 }, { id: 506, category: "Dinner", name: "Fried Rice", price: 235 },
+            { id: 507, category: "Dinner", name: "Manchurian", price: 245 }, { id: 508, category: "Dinner", name: "Dum Aloo", price: 245 },
+            { id: 509, category: "Dinner", name: "Paneer Lababdar", price: 345 },
+            
+            { id: 601, category: "Desserts", name: "Gulab Jamun", price: 70 }, { id: 602, category: "Desserts", name: "Rasmalai", price: 140 },
+            { id: 603, category: "Desserts", name: "Chocolate Brownie", price: 190 }, { id: 604, category: "Desserts", name: "Ice Cream Sundae", price: 200 },
+            { id: 605, category: "Desserts", name: "Moong Dal Halwa", price: 255 }, { id: 606, category: "Desserts", name: "Cheesecake", price: 325 },
+            { id: 607, category: "Desserts", name: "Fruit Cream", price: 315 }, { id: 608, category: "Desserts", name: "Kheer", price: 345 },
+            { id: 609, category: "Desserts", name: "Gajar Halwa", price: 478 }, { id: 610, category: "Desserts", name: "Pastry", price: 256 },
+            
+            { id: 701, category: "Drinks", name: "Masala Chai", price: 80 }, { id: 702, category: "Drinks", name: "Coffee", price: 100 },
+            { id: 703, category: "Drinks", name: "Lassi", price: 90 }, { id: 704, category: "Drinks", name: "Fresh Juice", price: 170 },
+            { id: 705, category: "Drinks", name: "Mojito", price: 265 }, { id: 706, category: "Drinks", name: "Coke/Pepsi", price: 60 },
+            { id: 707, category: "Drinks", name: "Cold Coffee", price: 160 }, { id: 708, category: "Drinks", name: "Milkshake", price: 160 },
+            { id: 709, category: "Drinks", name: "Soup", price: 120 }, { id: 710, category: "Drinks", name: "Mineral Water", price: 110 }
+        ];
+
+        const tabsContainer = document.getElementById('menu-tabs');
+        const listContainer = document.getElementById('menu-list');
+        const categories = [...new Set(fullMenu.map(item => item.category))];
+
+        function loadMenu(category) {
+            listContainer.innerHTML = '';
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
+            document.getElementById(`btn-${category}`).classList.add('active-tab');
+
+            const filteredMenu = fullMenu.filter(item => item.category === category);
+            filteredMenu.forEach((item) => {
+                const div = document.createElement('div');
+                div.className = 'menu-item';
+                div.innerHTML = `<div><span class="item-code">#${item.id}</span><span class="item-name">${item.name}</span></div><span style="color:var(--gold); font-weight:bold;">₹${item.price}</span>`;
+                listContainer.appendChild(div);
+            });
+        }
+
+        // Build Tabs
+        categories.forEach((cat) => {
+            const btn = document.createElement('button');
+            btn.className = 'tab-btn'; btn.id = `btn-${cat}`; btn.innerText = cat;
+            btn.onclick = () => { loadMenu(cat); document.getElementById('menuSearch').value = ''; }; 
+            tabsContainer.appendChild(btn);
+        });
+
+        // --- MENU SEARCH BAR LOGIC ---
+        function filterMenu() {
+            const query = document.getElementById('menuSearch').value.toLowerCase();
+            const allItems = document.querySelectorAll('.menu-item');
+
+            allItems.forEach(item => {
+                const text = item.querySelector('.item-name').innerText.toLowerCase();
+                if(text.includes(query)) {
+                    item.style.display = "flex";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+        // CART LOGIC
+        function addItemToCart() {
+            const codeInput = document.getElementById('itemCodeInput').value;
+            const qtyInput = parseInt(document.getElementById('itemQtyInput').value);
+            if(!codeInput || qtyInput < 1) { showToast("Valid Item Code & Quantity needed.", true); return; }
+            
+            const menuItem = fullMenu.find(item => item.id == codeInput);
+            if(!menuItem) { showToast(`Code #${codeInput} not found!`, true); return; }
+
+            const existingItem = cart.find(item => item.id == codeInput);
+            if(existingItem) { existingItem.qty += qtyInput; } else { cart.push({ ...menuItem, qty: qtyInput }); }
+
+            showToast(`${qtyInput}x ${menuItem.name} added!`);
+            document.getElementById('itemCodeInput').value = ''; document.getElementById('itemQtyInput').value = '1';
+            updateCartUI();
+        }
+
+        function removeCartItem(index) { cart.splice(index, 1); updateCartUI(); }
+
+        function updateCartUI() {
+            const cartContainer = document.getElementById('cart-items');
+            const totalDisplay = document.getElementById('cart-total-amt');
+            
+            localStorage.setItem('gv_cart', JSON.stringify(cart));
+
+            if(cart.length === 0) {
+                cartContainer.innerHTML = '<p style="color:#666; font-size:0.9rem; text-align:center; margin-top:20px;">Tray is empty</p>';
+                totalDisplay.innerText = '0'; return;
+            }
+            let html = ''; let total = 0;
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.qty; total += itemTotal;
+                html += `<div class="cart-item">
+                            <div style="flex:2;">${item.qty}x ${item.name}</div>
+                            <div style="flex:1; text-align:right;">₹${itemTotal}</div>
+                            <button class="remove-btn" onclick="removeCartItem(${index})"><i class="fas fa-times-circle"></i></button>
+                         </div>`;
+            });
+            cartContainer.innerHTML = html; totalDisplay.innerText = total.toLocaleString();
+        }
+
+        function placeOrder() {
+            if(cart.length === 0) { showToast("Tray is empty!", true); return; }
+            alert(`Order sent! Total: ₹${document.getElementById('cart-total-amt').innerText}`);
+            cart = []; 
+            localStorage.removeItem('gv_cart'); 
+            updateCartUI(); 
+            showToast("Order Confirmed!");
+        }
+
+        if(categories.length > 0) loadMenu('Starters');
+    </script>
+</body>
+</html>
